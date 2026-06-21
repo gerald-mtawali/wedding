@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+    /* Wedding palette */
+    --color-beige: #dbc4a0;
+    --color-champagne: #f7e7ce;
+    --color-champagne-soft: #fbf2e1;
+    --color-sage: #a3b18a;
+    --color-sage-deep: #7e8f66;
+    --color-brown: #7c6752;
+    --color-brown-dark: #5a4a3a;
+    --color-ink: #1f1a14;
+
+    /* Typography */
+    /*--font-script: "Imperial Script", "Mea Culpa", cursive;*/
+    --font-script: "Monsieur La Doulaise", cursive;
+    --font-script-alt: "Mea Culpa", cursive;
+    --font-serif: "Cinzel", Georgia, serif;
+    --font-serif-alt: "Oranienbaum", Georgia, serif;
+    --font-heading-script: var(--font-script);
+    --font-heading-serif: var(--font-serif);
+    --font-body: "Italiana", Georgia, serif;
+    --font-body-serif: var(--font-serif);
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        font-family: var(--font-body);
+        color: var(--color-ink);
+        background-color: var(--color-champagne-soft);
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        letter-spacing: 0.01em;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-heading-serif);
+        color: var(--color-ink);
+        font-weight: 400;
+        letter-spacing: 0.02em;
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+@utility font-script {
+    font-family: var(--font-script);
+    font-weight: 400;
+}
+
+@utility font-script-alt {
+    font-family: var(--font-script-alt);
+    font-weight: 400;
+}
