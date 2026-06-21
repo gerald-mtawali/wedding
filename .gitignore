@@ -8,9 +8,14 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+**/node_modules
 dist
 dist-ssr
 *.local
+
+# Cloudflare
+.wrangler
+.dev.vars
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +27,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Env
+.env
+.env.local
+/public/config.json
+
+# Untested Files
+api/
+db/
