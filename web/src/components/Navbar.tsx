@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import websiteLogo from "/website-logo.svg";
 
 const links = [
   { to: "/", label: "Our Story" },
@@ -20,14 +21,14 @@ export default function Navbar() {
           onClick={() => setOpen(false)}
           aria-label="Gerald and Donella — Home"
         >
-          <span className="font-serif text-2xl md:text-3xl tracking-[0.15em]">
-            G
-          </span>
-          <span className="font-serif text-md md:text-2xl mx-1.5 -mb-1 text-brown">
-            &amp;
-          </span>
-          <span className="font-serif text-2xl md:text-3xl tracking-[0.15em]">
-            D
+          <span>
+            <img
+              src={websiteLogo}
+              alt="Gerald and Donella"
+              className="h-7 sm:h-8 md:h-10 lg:h-12 w-auto"
+              width={90}
+              height={34}
+            />
           </span>
         </Link>
 

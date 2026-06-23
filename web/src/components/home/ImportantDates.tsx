@@ -16,11 +16,6 @@ const events: Event[] = [
     description: "Please RSVP by this date so we can finalize seating.",
   },
   {
-    date: "October 2, 2026",
-    title: "Welcome Dinner",
-    description: "An informal dinner to greet friends and family.",
-  },
-  {
     date: "October 3, 2026",
     title: "Ceremony & Reception",
     description: "Our wedding day in Lilongwe, Malawi.",
@@ -59,7 +54,9 @@ export default function ImportantDates() {
             const dateBlock = (
               <div
                 className={`hidden md:block ${
-                  dateOnLeft ? "md:text-right md:pr-10" : "md:text-left md:pl-10"
+                  dateOnLeft
+                    ? "md:text-right md:pr-10"
+                    : "md:text-left md:pl-10"
                 }`}
               >
                 <p className="font-serif text-lg text-brown-dark">{e.date}</p>
@@ -69,7 +66,9 @@ export default function ImportantDates() {
             const contentBlock = (
               <div
                 className={`${
-                  dateOnLeft ? "md:text-left md:pl-10" : "md:text-right md:pr-10"
+                  dateOnLeft
+                    ? "md:text-left md:pl-10"
+                    : "md:text-right md:pr-10"
                 }`}
               >
                 <p className="md:hidden font-serif text-sm text-brown mb-1">
