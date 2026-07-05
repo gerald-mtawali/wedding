@@ -92,7 +92,7 @@ export default function ImportantDates() {
                 {/* Mobile dot (on the left rail) */}
                 <span
                   aria-hidden
-                  className="md:hidden absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-sage-deep ring-4 ring-champagne-soft"
+                  className="md:hidden absolute -left-1.75 top-1 w-3 h-3 rounded-full bg-sage-deep ring-4 ring-champagne-soft"
                 />
                 {/* Desktop dot (centered on the spine) */}
                 <span
