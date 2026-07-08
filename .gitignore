@@ -36,3 +36,6 @@ dist-ssr
 # Untested Files
 api/
 db/
+
+# gitignore videos
+web/public/videos/*.mp4
