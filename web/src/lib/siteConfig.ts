@@ -9,8 +9,29 @@ export const siteConfig = {
   groom: "Gerald",
   date: new Date("2026-10-03T15:00:00+02:00"),
   dateLabel: "Saturday, October 3rd 2026",
-  venue: "Lilongwe, Malawi",
+  venue: "Kumbali, Lilongwe, Malawi",
   venueShort: "Lilongwe, Malawi",
+
+  /**
+   * Target the Hero countdown ticks down to — October 3rd 2026, 17:00 in
+   * Malawi (CAT, UTC+2). Kept separate from `date` (the ceremony time) so the
+   * countdown can point at a different moment without affecting other copy.
+   */
+  countdownTarget: new Date("2026-10-03T17:00:00+02:00"),
+
+  /**
+   * Hero backdrop image.
+   *
+   *   1. If `VITE_HERO_IMAGE` is set, it wins (production — point it at the R2
+   *      public URL, e.g. https://media.gerald-and-donella.com/hero.jpg).
+   *   2. Otherwise the Hero falls back to the image bundled at
+   *      `web/src/assets/hero.png`, so the site always renders a backdrop with
+   *      zero configuration (and it works offline in dev).
+   *
+   * The Hero renders whatever you supply in black & white via a CSS filter, so
+   * a full-colour photo can be dropped in and it will still match the design.
+   */
+  heroImage: (import.meta.env.VITE_HERO_IMAGE as string | undefined) ?? "",
 
   /**
    * When deployed to Cloudflare, set VITE_MEDIA_BASE to your R2 public URL
