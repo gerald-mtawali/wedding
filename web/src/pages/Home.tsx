@@ -9,8 +9,8 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Gallery />
       <OurStory />
+      <Gallery />
       <SaveTheDate />
       <ImportantDates />
       <RsvpCta />
