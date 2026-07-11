@@ -9,8 +9,8 @@ export const siteConfig = {
   groom: "Gerald",
   date: new Date("2026-10-03T15:00:00+02:00"),
   dateLabel: "Saturday, October 3rd 2026",
-  venue: "Kumbali, Lilongwe, Malawi",
-  venueShort: "Lilongwe, Malawi",
+  venue: "Kumbali Castle, Lilongwe, Malawi",
+  venueShort: "Kumbali Castle, Lilongwe, Malawi",
 
   /**
    * Target the Hero countdown ticks down to — October 3rd 2026, 17:00 in
