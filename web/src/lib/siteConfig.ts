@@ -3,6 +3,7 @@
  * Most copy on the home page references these values.
  */
 const isDev = import.meta.env.DEV;
+const showStoryEnv = import.meta.env.VITE_SHOW_STORY ?? false;
 
 export const siteConfig = {
   bride: "Donella",
@@ -63,6 +64,7 @@ export const siteConfig = {
    * Phone-shot vertical video is `"9/16"`; standard widescreen is `"16/9"`.
    */
   saveTheDateAspect: "9/16" as "9/16" | "16/9" | "1/1" | "4/5",
+  showStory: showStoryEnv ?? false,
 } as const;
 
 export type SiteConfig = typeof siteConfig;
