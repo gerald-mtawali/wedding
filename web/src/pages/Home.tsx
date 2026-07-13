@@ -4,6 +4,8 @@ import OurStory from "../components/home/OurStory";
 import SaveTheDate from "../components/home/SaveTheDate";
 import ImportantDates from "../components/home/ImportantDates";
 import RsvpCta from "../components/home/RsvpCta";
+import Swatches from "../components/home/Swatches";
+
 
 export default function Home() {
   return (
@@ -13,6 +15,7 @@ export default function Home() {
       <Gallery />
       <SaveTheDate />
       <ImportantDates />
+      <Swatches />
       <RsvpCta />
     </>
   );

@@ -7,9 +7,11 @@
     --color-champagne-soft: #fbf2e1;
     --color-sage: #a3b18a;
     --color-sage-deep: #7e8f66;
-    --color-brown: #7c6752;
+    --color-brown: #1a090d;
     --color-brown-dark: #5a4a3a;
     --color-ink: #1f1a14;
+    /*--color-coffee-bean: #1a090d;*/
+
 
     /* Typography */
     /*--font-script: "Imperial Script", "Mea Culpa", cursive;*/
@@ -19,8 +21,10 @@
     --font-serif-alt: "Oranienbaum", Georgia, serif;
     --font-heading-script: var(--font-script);
     --font-heading-serif: var(--font-serif);
-    --font-body: "Italiana", Georgia, serif;
+    /*--font-body: "Italiana", Georgia, serif;*/
+    --font-body: "Antic Didone", serif;
     --font-body-serif: var(--font-serif);
+
 }
 
 @layer base {
