@@ -6,7 +6,7 @@ type Event = {
 
 const events: Event[] = [
   {
-    date: "July 18, 2026",
+    date: "August 5th, 2026",
     title: "Invitation Mailed",
     description: "Invitations sent — start planning your travel.",
   },

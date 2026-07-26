@@ -39,3 +39,17 @@ db/
 
 # gitignore videos
 web/public/videos/*.mp4
+
+# gitignore local Our Story photos (served from R2 in production)
+web/public/story/*.jpg
+web/public/story/*.jpeg
+web/public/story/*.png
+
+# gitignore local image assets (served from R2 in production).
+# Note: patterns with a slash are anchored to this file's dir (repo root),
+# so the `web/` prefix is required. `**` covers src/assets and its subfolders.
+web/src/assets/**/*.jpeg
+web/src/assets/**/*.jpg
+web/src/assets/**/*.png
+web/src/assets/**/*.webp
+web/src/assets/**/*.avif
