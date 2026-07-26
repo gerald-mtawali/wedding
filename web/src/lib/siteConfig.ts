@@ -65,6 +65,45 @@ export const siteConfig = {
    */
   saveTheDateAspect: "9/16" as "9/16" | "16/9" | "1/1" | "4/5",
   showStory: showStoryEnv ?? false,
+
+  /**
+   * "Our Story" postcard photos — production R2 URLs only.
+   *
+   * In production (Cloudflare Pages / Workers build), set VITE_STORY_PHOTO_1,
+   * VITE_STORY_PHOTO_2 and VITE_STORY_PHOTO_3 to the public R2 URL for each
+   * frame, e.g. https://media.gerald-and-donella.com/photo-frame-1.jpg.
+   *
+   * When a var is unset (local dev, or a missing prod var) the slot is empty
+   * here and `getStoryPhotos()` (see lib/storyPhotos.ts) falls back to the
+   * local image bundled from src/assets/gallery/photo-frame-{1,2,3}.jpg.
+   */
+  storyPhotos: [
+    (import.meta.env.VITE_STORY_PHOTO_1 as string | undefined) ?? "",
+    (import.meta.env.VITE_STORY_PHOTO_2 as string | undefined) ?? "",
+    (import.meta.env.VITE_STORY_PHOTO_3 as string | undefined) ?? "",
+  ] as readonly string[],
+
+  /**
+   * Fabric swatch images (the diamond satin-cloth tiles) — production R2 URLs
+   * only, keyed by colour.
+   *
+   * In production set VITE_SWATCH_BEIGE, VITE_SWATCH_CHAMPAGNE,
+   * VITE_SWATCH_SAGE, VITE_SWATCH_BROWN and VITE_SWATCH_OLIVE to the public R2
+   * URL for each cloth, e.g.
+   * https://media.gerald-and-donella.com/beige-satin-cloth.png.
+   *
+   * When a var is unset (local dev, or a missing prod var) `getSwatchImage()`
+   * (see lib/swatches.ts) falls back to the local image bundled from
+   * src/assets/{colour}-satin-cloth.png.
+   */
+  swatchImages: {
+    beige: (import.meta.env.VITE_SWATCH_BEIGE as string | undefined) ?? "",
+    champagne:
+      (import.meta.env.VITE_SWATCH_CHAMPAGNE as string | undefined) ?? "",
+    sage: (import.meta.env.VITE_SWATCH_SAGE as string | undefined) ?? "",
+    brown: (import.meta.env.VITE_SWATCH_BROWN as string | undefined) ?? "",
+    olive: (import.meta.env.VITE_SWATCH_OLIVE as string | undefined) ?? "",
+  } as Record<string, string>,
 } as const;
 
 export type SiteConfig = typeof siteConfig;
