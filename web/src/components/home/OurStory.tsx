@@ -43,7 +43,7 @@ const chapters: Chapter[] = [
 const notes = {
   him:
     "Donella is like the sun — she draws everything toward her and radiates a light that is simply amazing, and I am happy to be caught in her orbit. I am so grateful to call her my best friend and life partner. I look forward to growing old with her, and to walking through this beautiful journey called life together. Thank you to everyone who is going to make this day so special.",
-  her: "On the way…",
+  her: "Kind, considerate, selfless, sagacious- these are just a few words I would use to describe Gerald. He never fails to show up for the people he loves, and I am so endlessly grateful to be one of them. Our story feels like something lifted from the pages of a fairytale, where every chapter has unfolded so beautifully by the grace of God. I cannot imagine my life without him; my best friend, my confidant, my happy place and my peace. But this is not where our story ends; rather, it is where our greatest adventure begins. Hand in hand, we are turning the page to a beautiful new chapter.We would be honoured to have you join us as we celebrate the beginning of our happily ever after. We cannot wait to share this unforgettable day with you. ",
 };
 
 function Postcard({

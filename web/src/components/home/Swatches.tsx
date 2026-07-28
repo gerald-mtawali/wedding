@@ -39,7 +39,7 @@ function Diamond({ swatch }: { swatch: Swatch }) {
 
   return (
     <div
-      className="group relative flex h-32 w-32 items-center justify-center md:h-40 md:w-40"
+      className="group relative flex h-56 w-56 items-center justify-center md:h-[280px] md:w-[280px]"
       aria-label={swatch.name}
       role="img"
     >
@@ -82,7 +82,7 @@ const Swatches = () => {
             <Diamond key={s.key} swatch={s} />
           ))}
         </div>
-        <div className="-mt-16 flex md:-mt-20">
+        <div className="-mt-28 flex md:-mt-[140px]">
           {bottom.map((s) => (
             <Diamond key={s.key} swatch={s} />
           ))}
