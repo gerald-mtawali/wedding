@@ -68,3 +68,38 @@
     font-family: var(--font-script-alt);
     font-weight: 400;
 }
+
+/* ---------------------------------------------------------------------------
+   RSVP envelope
+   --------------------------------------------------------------------------- */
+
+/* The sealed envelope drifts gently so the page doesn't feel static. */
+@keyframes envelope-float {
+    0%, 100% {
+        transform: translateY(0) rotate(-0.4deg);
+    }
+    50% {
+        transform: translateY(-14px) rotate(0.4deg);
+    }
+}
+
+@utility animate-envelope-float {
+    animation: envelope-float 6s ease-in-out infinite;
+}
+
+/* Honour the OS "reduce motion" setting for every decorative animation on the
+   page. Transitions driven by React state still run, but near-instantly. */
+@media (prefers-reduced-motion: reduce) {
+    .animate-envelope-float {
+        animation: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

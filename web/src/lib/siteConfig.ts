@@ -13,6 +13,30 @@ export const siteConfig = {
   venue: "Kumbali Castle, Lilongwe, Malawi",
   venueShort: "Kumbali Castle, Lilongwe, Malawi",
 
+  /** Address as it appears on the invitation card, one line per array entry. */
+  invitationAddress: ["Kumbali Castle", "Plot 13/22, Lilongwe", "Malawi"],
+
+  /** Ceremony time as printed on the invitation. */
+  invitationTime: "5 in the evening",
+
+  /**
+   * The printed invitation artwork, so the site shows the identical card.
+   *
+   * Set VITE_INVITATION_ASSET to the public R2 URL for the file (SVG
+   * preferred — see lib/invitationArtwork.ts). Unset, the RSVP page falls
+   * back to `web/src/assets/invitation.svg`, and failing that renders the
+   * typographic card built from the values above.
+   */
+  invitationAsset:
+    (import.meta.env.VITE_INVITATION_ASSET as string | undefined) ?? "",
+
+  /**
+   * Aspect ratio of the printed card, as `"width/height"`. The layout reserves
+   * space using this, so it must match the artwork or the card will letterbox.
+   * 5×7in → "5/7"; A6/A5 → "1/1.414"; square → "1/1".
+   */
+  invitationAspect: "5/7",
+
   /**
    * Target the Hero countdown ticks down to — October 3rd 2026, 17:00 in
    * Malawi (CAT, UTC+2). Kept separate from `date` (the ceremony time) so the
@@ -82,6 +106,21 @@ export const siteConfig = {
     (import.meta.env.VITE_STORY_PHOTO_2 as string | undefined) ?? "",
     (import.meta.env.VITE_STORY_PHOTO_3 as string | undefined) ?? "",
   ] as readonly string[],
+
+  /**
+   * The polaroid photo shown beside the invitation card on the RSVP page.
+   *
+   * In production set VITE_INVITATION_PHOTO to the public R2 URL for the
+   * `INVITATION_PHOTO` object, e.g.
+   * https://media.gerald-and-donella.com/invitation-photo.jpg.
+   *
+   * When unset (local dev, or a missing prod var) `getInvitationPhoto()`
+   * (see lib/invitationPhoto.ts) falls back to the local image bundled from
+   * src/assets/invitation-photo.{jpg,png,…}, and renders an empty frame if
+   * that isn't there either.
+   */
+  invitationPhoto:
+    (import.meta.env.VITE_INVITATION_PHOTO as string | undefined) ?? "",
 
   /**
    * Fabric swatch images (the diamond satin-cloth tiles) — production R2 URLs
