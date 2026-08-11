@@ -21,13 +21,23 @@ import { getInvitationArtwork } from "../../lib/invitationArtwork";
 const deckle =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='6' viewBox='0 0 120 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3 Q6 0 12 3 T24 3 T36 3 T48 3 T60 3 T72 3 T84 3 T96 3 T108 3 T120 3 V6 H0 Z' fill='%23000'/%3E%3C/svg%3E\")";
 
-/** Plain-text description of the invitation, for screen readers. */
+/**
+ * Plain-text transcription of the invitation, for screen readers.
+ *
+ * The artwork is a bitmap, so every word on it is invisible to assistive
+ * technology — this is the only way that content reaches a screen reader, and
+ * it's the reason the wording lives in `siteConfig` rather than being baked
+ * into the image alone.
+ */
 function altText(): string {
   return [
-    "Kindly join us for the wedding of Gerald and Donella.",
-    `October 3rd at ${siteConfig.invitationTime}.`,
+    "Invitation. Together with their families, Gerald and Donella joyfully",
+    "invite you to their wedding celebration.",
+    "3 October 2026.",
     siteConfig.invitationAddress.join(", ") + ".",
-    "Reception to follow.",
+    `Reception starts at ${siteConfig.invitationTime}.`,
+    "Details and itinerary to follow.",
+    `Kindly RSVP by ${siteConfig.rsvpBy}.`,
   ].join(" ");
 }
 
@@ -81,7 +91,7 @@ export default function InvitationCard() {
 
           <div className="flex h-full flex-col items-center justify-center px-[10cqw] text-center">
             <p className="font-serif text-[2.7cqw] uppercase leading-relaxed tracking-[0.3em] text-brown/80">
-              Kindly join us for the wedding of
+              Together with their families
             </p>
 
             <h2 className="mt-[6cqw] font-script text-[15cqw] leading-[1.05] text-ink">
@@ -94,10 +104,7 @@ export default function InvitationCard() {
             />
 
             <p className="font-serif text-[3.3cqw] uppercase tracking-[0.22em] text-ink">
-              October 03<sup className="tracking-normal">rd</sup>
-            </p>
-            <p className="mt-[1.6cqw] font-serif text-[3.3cqw] uppercase tracking-[0.22em] text-ink">
-              at {siteConfig.invitationTime}
+              03 &nbsp;|&nbsp; Oct &nbsp;|&nbsp; 2026
             </p>
 
             <div className="mt-[6cqw] space-y-[1cqw]">
@@ -111,8 +118,11 @@ export default function InvitationCard() {
               ))}
             </div>
 
-            <p className="mt-[7cqw] font-script text-[8.5cqw] leading-none text-brown/70">
-              reception to follow
+            <p className="mt-[6cqw] font-serif text-[2.7cqw] uppercase tracking-[0.2em] text-ink/80">
+              Reception starts @ {siteConfig.invitationTime}
+            </p>
+            <p className="mt-[4cqw] font-serif text-[2.5cqw] uppercase tracking-[0.2em] text-brown/70">
+              Details &amp; itinerary to follow
             </p>
           </div>
         </>

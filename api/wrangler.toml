@@ -1,0 +1,32 @@
+name = "wedding-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# ---------------------------------------------------------------------------
+# D1 — parties, guests, rsvps, registry.
+#
+# `database_id` is only used for the *remote* database. Local `wrangler dev`
+# creates its own SQLite file under .wrangler/state and ignores this value,
+# so you can develop before the remote database exists.
+#
+#   npx wrangler d1 create wedding      # prints the database_id
+#
+# Paste the id below, then apply the schema (see db/schema.sql for commands).
+# ---------------------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "wedding"
+database_id = "REPLACE_ME"
+
+# R2 binding — gallery photos, the invitation photo, and the Save-the-Date
+# video. Uncomment once the bucket exists:
+#   npx wrangler r2 bucket create wedding-media
+# [[r2_buckets]]
+# binding = "MEDIA"
+# bucket_name = "wedding-media"
+
+[vars]
+ENVIRONMENT = "development"
+
+[env.production.vars]
+ENVIRONMENT = "production"

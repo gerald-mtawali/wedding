@@ -13,11 +13,29 @@ export const siteConfig = {
   venue: "Kumbali Castle, Lilongwe, Malawi",
   venueShort: "Kumbali Castle, Lilongwe, Malawi",
 
-  /** Address as it appears on the invitation card, one line per array entry. */
-  invitationAddress: ["Kumbali Castle", "Plot 13/22, Lilongwe", "Malawi"],
+  /**
+   * The wording on the printed invitation. These values are the source for
+   * the card's alt text (the artwork is a bitmap, so its words are invisible
+   * to screen readers) and for the typographic fallback card. Keep them in
+   * step with `src/assets/invitation.webp`.
+   */
+  invitationAddress: ["Kumbali Castle Garden", "Lilongwe, Malawi"],
 
-  /** Ceremony time as printed on the invitation. */
-  invitationTime: "5 in the evening",
+  /** As printed: "RECEPTION STARTS @ 15:30". */
+  invitationTime: "15:30",
+
+  /** As printed: "KINDLY RSVP BY 15 SEP 2026". */
+  rsvpBy: "15 September 2026",
+
+  /**
+   * Aspect ratio of the polaroid's photo window, as `"width/height"`.
+   *
+   * The photo is fitted inside this window rather than filling it, so it is
+   * never cropped whatever its own proportions — a mismatch just leaves a
+   * slightly wider white margin on two sides, which on a polaroid reads as
+   * part of the frame. Set this to your photo's actual ratio for even borders.
+   */
+  invitationPhotoAspect: "4/5",
 
   /**
    * The printed invitation artwork, so the site shows the identical card.
@@ -33,9 +51,12 @@ export const siteConfig = {
   /**
    * Aspect ratio of the printed card, as `"width/height"`. The layout reserves
    * space using this, so it must match the artwork or the card will letterbox.
-   * 5×7in → "5/7"; A6/A5 → "1/1.414"; square → "1/1".
+   *
+   * Currently the exact pixel ratio of `src/assets/invitation.webp`
+   * (1190 × 1684 — an A-series portrait, 1:√2). Update this if you replace
+   * the artwork with a different size.
    */
-  invitationAspect: "5/7",
+  invitationAspect: "1190/1684",
 
   /**
    * Target the Hero countdown ticks down to — October 3rd 2026, 17:00 in

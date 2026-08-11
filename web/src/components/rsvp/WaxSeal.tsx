@@ -1,9 +1,21 @@
+import {
+  MONOGRAM_PATH,
+  SEAL,
+  SEAL_IMAGE_HEIGHT,
+  SEAL_VIEWBOX,
+} from "./envelopeArt";
+
 /**
- * The gold wax seal that holds the envelope shut — and the page's one call to
- * action while the envelope is closed.
+ * The gold wax seal holding the envelope shut — and the page's only call to
+ * action while it's closed.
  *
- * Rendered as a button so it's keyboard-reachable; the irregular border-radius
- * and the layered radial gradients are what stop it reading as a flat circle.
+ * The wax itself is the bitmap from the design export; the "G & D" monogram is
+ * the vector path from the same file, drawn on top. Both live inside one SVG
+ * sharing the export's 98 x 96 coordinate space, so they stay perfectly
+ * registered however large the seal is drawn — and the monogram stays crisp
+ * at any size without waiting on the script webfont.
+ *
+ * Rendered as a button so it's keyboard-reachable.
  */
 export default function WaxSeal({
   onClick,
@@ -20,44 +32,47 @@ export default function WaxSeal({
       type="button"
       onClick={onClick}
       disabled={broken}
-      aria-label="Open the invitation"
-      className={`group relative grid h-20 w-20 place-items-center rounded-full transition-all duration-500 ease-out md:h-24 md:w-24 ${
+      aria-label="Break the seal to open the invitation"
+      className={`group relative block w-full transition-all duration-500 ease-out ${
         broken
-          ? "pointer-events-none scale-50 opacity-0"
+          ? "pointer-events-none scale-[0.4] opacity-0"
           : "cursor-pointer hover:scale-105 focus-visible:scale-105"
-      } focus:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-2 focus-visible:ring-offset-sage-deep ${className}`}
+      } focus:outline-none focus-visible:ring-2 focus-visible:ring-champagne focus-visible:ring-offset-4 focus-visible:ring-offset-transparent ${className}`}
     >
+      {/* Invisible hit area. The seal is drawn at 18% of the envelope, which
+          is only ~41px on a narrow phone — below the 44px minimum for a touch
+          target — so the tappable region is extended past the artwork. */}
+      <span aria-hidden className="absolute -inset-[30%]" />
+
       {/* Soft glow that pulses to invite the click. */}
       <span
         aria-hidden
-        className="absolute inset-0 -z-10 animate-ping rounded-full bg-beige/40 [animation-duration:3s] group-disabled:hidden"
+        className="absolute inset-[8%] -z-10 animate-ping rounded-full bg-beige/35 [animation-duration:3s] group-disabled:hidden"
       />
 
-      {/* The wax blob. The uneven border-radius gives it a hand-pressed edge. */}
-      <span
-        aria-hidden
-        className="absolute inset-0 shadow-lg shadow-black/30 ring-1 ring-black/10"
-        style={{
-          borderRadius: "48% 52% 46% 54% / 52% 47% 53% 48%",
-          background:
-            "radial-gradient(circle at 32% 28%, #f0c86a 0%, #d9a520 38%, #b5811a 72%, #8a5f12 100%)",
-        }}
-      />
-
-      {/* Pressed-in rim. */}
-      <span
-        aria-hidden
-        className="absolute inset-[14%] opacity-70"
-        style={{
-          borderRadius: "50% 48% 52% 50% / 48% 52% 48% 52%",
-          boxShadow:
-            "inset 0 1px 2px rgba(255,255,255,.45), inset 0 -2px 3px rgba(0,0,0,.35)",
-        }}
-      />
-
-      <span className="relative font-script text-3xl leading-none text-[#5a3d07] drop-shadow-[0_1px_0_rgba(255,255,255,.35)] md:text-4xl">
-        G&amp;D
-      </span>
+      <svg
+        viewBox={SEAL_VIEWBOX}
+        className="w-full drop-shadow-[0_3px_5px_rgba(0,0,0,0.35)]"
+        role="presentation"
+      >
+        <image
+          href={SEAL}
+          width="98"
+          height={SEAL_IMAGE_HEIGHT}
+          preserveAspectRatio="xMidYMid meet"
+        />
+        {/* Monogram, debossed: a pale offset copy underneath the dark face
+            reads as an edge catching the light, the way stamped wax does. */}
+        <g>
+          <path
+            d={MONOGRAM_PATH}
+            fill="#f5dda2"
+            opacity="0.55"
+            transform="translate(0, 0.55)"
+          />
+          <path d={MONOGRAM_PATH} fill="#6b4a08" opacity="0.85" />
+        </g>
+      </svg>
     </button>
   );
 }

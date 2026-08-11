@@ -5,8 +5,8 @@ import { siteConfig } from "./siteConfig";
  *
  *   - Production: the R2 URL from `siteConfig.invitationPhoto`
  *     (VITE_INVITATION_PHOTO) wins when set.
- *   - Local dev / unset: falls back to an image bundled from
- *     `src/assets/invitation-photo.{jpg,jpeg,png,webp,avif}`.
+ *   - Local dev / unset: falls back to `src/assets/invite-photo.jpg`
+ *     (other extensions are accepted too).
  *   - Neither present: returns "", and the polaroid renders an empty frame.
  *
  * Local files must be *imported* (not referenced by raw path) so Vite can
@@ -14,7 +14,7 @@ import { siteConfig } from "./siteConfig";
  * this mirrors how `storyPhotos.ts` loads the Our Story frames.
  */
 const localModules = import.meta.glob<{ default: string }>(
-  "../assets/invitation-photo.{jpg,jpeg,png,webp,avif}",
+  "../assets/invite-photo.{jpg,jpeg,png,webp,avif}",
   { eager: true },
 );
 

@@ -23,6 +23,7 @@
     --font-heading-serif: var(--font-serif);
     /*--font-body: "Italiana", Georgia, serif;*/
     --font-body: "Antic Didone", serif;
+    --font-italiana: "Italiana", Georgia, serif;
     --font-body-serif: var(--font-serif);
 
 }
@@ -66,6 +67,11 @@
 
 @utility font-script-alt {
     font-family: var(--font-script-alt);
+    font-weight: 400;
+}
+
+@utility font-italiana {
+    font-family: var(--font-italiana);
     font-weight: 400;
 }
 
