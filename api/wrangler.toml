@@ -33,7 +33,7 @@ compatibility_date = "2025-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "wedding"
-database_id = "REPLACE_ME"
+database_id = "777b4596-842f-4023-8cf1-94730f739ef8"
 
 # R2 binding — gallery photos, the invitation photo, and the Save-the-Date
 # video. Uncomment once the bucket exists:

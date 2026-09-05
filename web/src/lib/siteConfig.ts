@@ -39,8 +39,8 @@ export const siteConfig = {
    */
   rsvpHelp: {
     contacts: [
-      { name: "Reference Person 1", phone: "+265 000 000 001" },
-      { name: "Reference Person 2", phone: "+265 000 000 002" },
+      { name: "John Mtawali", phone: "+265 000 000 001" },
+      { name: "Jane Nkaonja", phone: "+265 000 000 002" },
     ],
   },
 
