@@ -41,10 +41,45 @@
       "database_name": "wedding",
       "database_id": "777b4596-842f-4023-8cf1-94730f739ef8"
     }
-  ]
+  ],
 
   // R2 — uncomment once the bucket exists, to serve media through the API.
   // "r2_buckets": [
   //   { "binding": "MEDIA", "bucket_name": "wedding-media" }
-  // ]
+  // ],
+
+  // -------------------------------------------------------------------
+  // Preview deployments.
+  //
+  // Pages builds every branch, and those builds get PREVIEW bindings, which
+  // are configured separately from production. Without this block a preview
+  // deployment has no `env.DB` at all: the site loads, and every RSVP answers
+  // 503 "The RSVP database isn't configured" — which looks like a bug in the
+  // feature rather than a missing binding.
+  //
+  // This points preview at the SAME database as production, deliberately, so
+  // the branch can be tested end to end before it is merged. The cost is real
+  // and worth stating: anyone holding a preview URL can write to the live
+  // guest data. The ZZ Test guests exist so that testing does not have to
+  // touch a real invitee — use those.
+  //
+  // For stronger isolation, create a second database
+  // (`npx wrangler d1 create wedding-preview`), apply db/schema.sql and the
+  // guest batches to it, and put ITS id here instead.
+  // -------------------------------------------------------------------
+  "env": {
+    "preview": {
+      "vars": {
+        "ENVIRONMENT": "preview",
+        "ALLOWED_ORIGINS": ""
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "wedding",
+          "database_id": "777b4596-842f-4023-8cf1-94730f739ef8"
+        }
+      ]
+    }
+  }
 }

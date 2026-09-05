@@ -5,6 +5,36 @@
 const isDev = import.meta.env.DEV;
 const showStoryEnv = import.meta.env.VITE_SHOW_STORY ?? false;
 
+/** Public R2 base, e.g. https://media.gerald-and-donella.com. No trailing /. */
+const mediaBase = (
+  (import.meta.env.VITE_MEDIA_BASE as string | undefined) ?? ""
+).replace(/\/+$/, "");
+
+/**
+ * Resolve a media reference to a URL.
+ *
+ * Accepts either form, so a variable can hold whichever is convenient:
+ *
+ *   ""                              -> ""  (caller falls back to a bundled
+ *                                           asset, or renders without one)
+ *   "https://media.example.com/x"   -> used as-is
+ *   "/videos/x.mp4"                 -> used as-is (served from public/)
+ *   "invite-photo.jpg"              -> an R2 OBJECT KEY, joined to
+ *                                      VITE_MEDIA_BASE
+ *
+ * A bare key with no VITE_MEDIA_BASE set returns "" rather than a relative
+ * path. That matters: a relative URL would resolve against the current page,
+ * so /rsvp would silently request /invite-photo.jpg, get the SPA's index.html
+ * back with a 200, and render a broken image. Returning "" makes the fallback
+ * fire instead, which is a visible, correct outcome rather than a puzzling one.
+ */
+function media(value: string | undefined): string {
+  const v = (value ?? "").trim();
+  if (!v) return "";
+  if (/^(https?:)?\/\//.test(v) || v.startsWith("/")) return v;
+  return mediaBase ? `${mediaBase}/${v.replace(/^\/+/, "")}` : "";
+}
+
 export const siteConfig = {
   bride: "Donella",
   groom: "Gerald",
@@ -57,13 +87,17 @@ export const siteConfig = {
   /**
    * The printed invitation artwork, so the site shows the identical card.
    *
-   * Set VITE_INVITATION_ASSET to the public R2 URL for the file (SVG
-   * preferred — see lib/invitationArtwork.ts). Unset, the RSVP page falls
-   * back to `web/src/assets/invitation.svg`, and failing that renders the
-   * typographic card built from the values above.
+   * Set VITE_INVITATION_ASSET to a full URL or a bare R2 object key.
+   *
+   * Unlike the photo, this one needs nothing in production: the artwork
+   * (src/assets/invitation.webp, 97 KB) is committed and ships with the
+   * bundle, so the card renders from the build with no R2 involved. Failing
+   * both, InvitationCard renders the typographic version from the values
+   * above — no image required at all.
    */
-  invitationAsset:
-    (import.meta.env.VITE_INVITATION_ASSET as string | undefined) ?? "",
+  invitationAsset: media(
+    import.meta.env.VITE_INVITATION_ASSET as string | undefined,
+  ),
 
   /**
    * Aspect ratio of the printed card, as `"width/height"`. The layout reserves
@@ -101,7 +135,7 @@ export const siteConfig = {
    * (e.g. https://media.gerald-and-donella.com). In dev, we fall back to
    * /gallery from the public folder.
    */
-  mediaBase: import.meta.env.VITE_MEDIA_BASE ?? "",
+  mediaBase,
 
   /**
    * Save the Date video source.
@@ -148,17 +182,19 @@ export const siteConfig = {
   /**
    * The polaroid photo shown beside the invitation card on the RSVP page.
    *
-   * In production set VITE_INVITATION_PHOTO to the public R2 URL for the
-   * `INVITATION_PHOTO` object, e.g.
-   * https://media.gerald-and-donella.com/invitation-photo.jpg.
+   * Set VITE_INVITE_PHOTO to either a full URL or a bare R2 object key
+   * (e.g. "invite-photo.jpg") to be joined to VITE_MEDIA_BASE.
    *
-   * When unset (local dev, or a missing prod var) `getInvitationPhoto()`
-   * (see lib/invitationPhoto.ts) falls back to the local image bundled from
-   * src/assets/invitation-photo.{jpg,png,…}, and renders an empty frame if
-   * that isn't there either.
+   * THIS ONE MATTERS IN PRODUCTION. The local fallback,
+   * src/assets/invite-photo.jpg, is 3.3 MB and gitignored — so it exists on
+   * your machine and NOT in the deployed build. Without VITE_INVITE_PHOTO set
+   * at build time the polaroid renders an empty frame in production while
+   * looking perfectly fine locally, which is the hardest kind of difference to
+   * notice.
    */
-  invitationPhoto:
-    (import.meta.env.VITE_INVITATION_PHOTO as string | undefined) ?? "",
+  invitationPhoto: media(
+    import.meta.env.VITE_INVITE_PHOTO as string | undefined,
+  ),
 
   /**
    * Fabric swatch images (the diamond satin-cloth tiles) — production R2 URLs
