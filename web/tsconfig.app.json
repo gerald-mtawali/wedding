@@ -27,5 +27,8 @@
   "include": ["src", "../shared"],
   // Run by `node --test`, not by either build. It imports node:test and
   // uses an explicit .ts specifier, neither of which this project knows about.
-  "exclude": ["../shared/**/*.test.ts", "src/**/*.test.ts"]
+  // `functions/` is Worker code deployed by Pages, not part of the browser
+  // bundle. It is typechecked by api/tsconfig.json, which has the Workers
+  // types; compiling it here would pull Worker globals into a DOM project.
+  "exclude": ["../shared/**/*.test.ts", "src/**/*.test.ts", "functions"]
 }

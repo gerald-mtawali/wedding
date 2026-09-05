@@ -310,13 +310,22 @@ const TIERS: {
     },
   },
 
-  // 5. One word typed. Could be either name, so try both; a common surname
-  //    legitimately returns a long ambiguous list, which is the guest's to
-  //    resolve.
+  // 5. What was typed IS somebody's given name, or somebody's surname, whole.
+  //
+  //    Compares the entire query rather than a single token, which is what
+  //    makes a COMPOUND surname work: "Da Trindade" is one name, and treating
+  //    it as two tokens meant Daniel Da Trindade could not be found by his own
+  //    surname at all — not as a match, not even as a suggestion.
+  //
+  //    Safe to widen because it demands exact equality with a whole name part.
+  //    "John Banda" is nobody's surname, so a two-token query still falls
+  //    through to the tiers below.
+  //
+  //    A common surname legitimately returns a long ambiguous list, which is
+  //    the guest's to resolve.
   {
     tier: "single-token",
-    test: (k, q) =>
-      q.tokens.length === 1 && (k.last === q.first || k.first === q.first),
+    test: (k, q) => k.last === q.full || k.first === q.full,
   },
 
   // 7. One typo anywhere in the whole name. Transposition counts as one edit,

@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "codes": "node scripts/generate-codes.mjs",
     "db:local": "wrangler d1 execute wedding --local --file=../db/schema.sql",

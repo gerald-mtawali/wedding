@@ -1,0 +1,11 @@
+# Client-side routing fallback for Cloudflare Pages.
+#
+# The site uses react-router, so /rsvp, /registry and /directions exist only
+# in the browser. Without this line the edge looks for a FILE at that path,
+# does not find one, and returns 404 — so a pasted link or a refresh on any
+# page but the home page shows an error instead of the site.
+#
+# Vite copies public/ to the root of dist/, which is where Pages expects it.
+# The 200 (not 301) is what makes the URL stay put while index.html is served.
+
+/*    /index.html   200

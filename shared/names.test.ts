@@ -139,6 +139,31 @@ test("a surname on its own returns everyone who has it", () => {
   assert.equal(tierOf(r), "single-token");
 });
 
+test("a compound surname can be searched as itself", () => {
+  // "Da Trindade" is ONE name. Treated as two tokens it matched nothing at
+  // all — the guest could not find himself by his own surname.
+  const list = [
+    { id: 1, firstName: "Daniel", middleName: null, lastName: "Da Trindade" },
+    { id: 2, firstName: "Sean", middleName: null, lastName: "Bode" },
+  ];
+  const r = searchGuests(list, "Da Trindade");
+  assert.equal(r.kind, "match");
+  assert.equal("results" in r ? r.results[0].guest.id : 0, 1);
+  assert.equal(searchGuests(list, "Daniel Da Trindade").kind, "match");
+});
+
+test("widening tier 5 did not make two-token queries match a surname", () => {
+  // The guard that keeps the widening safe: it demands equality with a WHOLE
+  // name part, so an ordinary "first last" query still falls through.
+  const list = [
+    { id: 1, firstName: "John", middleName: "A", lastName: "Banda" },
+    { id: 2, firstName: "John", middleName: "B", lastName: "Banda" },
+  ];
+  const r = searchGuests(list, "John Banda");
+  assert.equal(r.kind, "ambiguous");
+  assert.equal(tierOf(r), "exact-core");
+});
+
 test("a given name on its own works too", () => {
   assert.deepEqual(ids(find("Chisomo")), [8]);
 });

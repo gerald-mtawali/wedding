@@ -1,0 +1,50 @@
+{
+  // ---------------------------------------------------------------------
+  // Cloudflare Pages configuration for the site AND its API.
+  //
+  // `pages_build_output_dir` is what marks this as a PAGES config rather than
+  // a Worker one. Without that key, `wrangler pages deploy` refuses to run at
+  // all ("not a Pages config file"), so this file cannot be turned into a
+  // Worker config by accident.
+  //
+  // NOTE: once this file exists, it takes precedence over bindings configured
+  // in the Pages dashboard. That is the point — bindings live in git and
+  // change through review rather than through someone clicking Save.
+  // ---------------------------------------------------------------------
+
+  "name": "gd-wedding",
+  // Must be a date the LOCAL wrangler's workerd binary supports, not just one
+  // production accepts. Setting it to today made `wrangler pages dev` refuse
+  // to boot ("newest date supported by this server binary is 2026-07-13")
+  // while production would have been perfectly happy — so local testing broke
+  // and nothing else did, which is the worst way round.
+  "compatibility_date": "2026-07-13",
+  "pages_build_output_dir": "./dist",
+
+  // -------------------------------------------------------------------
+  // D1 — read by functions/api/[[path]].ts as `env.DB`.
+  //
+  // Paste the id from `npx wrangler d1 create wedding`. It is an identifier,
+  // not a secret: commit it.
+  // -------------------------------------------------------------------
+  "vars": {
+    "ENVIRONMENT": "production",
+    // Cross-origin callers. Empty on purpose: the API is served by this same
+    // Pages project on the same hostname, so nothing is ever cross-origin and
+    // the browser sends no Origin header at all.
+    "ALLOWED_ORIGINS": ""
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wedding",
+      "database_id": "777b4596-842f-4023-8cf1-94730f739ef8"
+    }
+  ]
+
+  // R2 — uncomment once the bucket exists, to serve media through the API.
+  // "r2_buckets": [
+  //   { "binding": "MEDIA", "bucket_name": "wedding-media" }
+  // ]
+}
