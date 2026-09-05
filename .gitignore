@@ -33,10 +33,6 @@ dist-ssr
 .env.local
 /public/config.json
 
-# Untested Files
-api/
-db/
-
 # gitignore videos
 web/public/videos/*.mp4
 
@@ -53,3 +49,40 @@ web/src/assets/**/*.jpg
 web/src/assets/**/*.png
 web/src/assets/**/*.webp
 web/src/assets/**/*.avif
+
+# ...but the envelope chrome IS tracked. Unlike the photos above it isn't
+# swappable content served from R2 — it's part of the UI, the RSVP page can't
+# render without it, and it's small enough (~92 KB) to belong in git.
+!web/src/assets/envelope/
+!web/src/assets/envelope/*.webp
+!web/src/assets/envelope/flowers.webp
+
+# The invitation artwork is tracked for the same reason: it's the printed card
+# itself, not a photo, and the RSVP page falls back to a plain typographic
+# version without it. VITE_INVITATION_ASSET still overrides it in production.
+!web/src/assets/invitation.webp
+
+# Raw Figma exports stay OUT of git — they're ~16 MB of duplicated embedded
+# texture, Figma is the source of truth, and re-exporting is a two-click job.
+# Regenerate the optimised assets with web/scripts/extract-envelope-art.mjs.
+design/
+
+# ---------------------------------------------------------------------------
+# Database
+# ---------------------------------------------------------------------------
+# Remote dumps contain real replies: phone/WhatsApp numbers, notes to the
+# couple, and dietary requirements (some of which are religious). Never in git.
+db/backups/*.sql
+
+# The real guest list. Names only — contact details live in `rsvps` and are
+# collected at RSVP time, never in these files — but this table IS the
+# allow-list: identity in the RSVP flow is "your name is on it", so anyone
+# holding it can reply as anyone on it.
+#
+# Safe default: ignored. If this repo is PRIVATE and you want the audit trail
+# of who was added when (recommended — it's genuinely useful), delete the two
+# lines below and commit the batches instead. Ignoring is trivially reversed;
+# removing names from git history is not.
+db/guests/*.sql
+!db/guests/000-template.sql
+docs/

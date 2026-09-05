@@ -5,6 +5,36 @@
 const isDev = import.meta.env.DEV;
 const showStoryEnv = import.meta.env.VITE_SHOW_STORY ?? false;
 
+/** Public R2 base, e.g. https://media.gerald-and-donella.com. No trailing /. */
+const mediaBase = (
+  (import.meta.env.VITE_MEDIA_BASE as string | undefined) ?? ""
+).replace(/\/+$/, "");
+
+/**
+ * Resolve a media reference to a URL.
+ *
+ * Accepts either form, so a variable can hold whichever is convenient:
+ *
+ *   ""                              -> ""  (caller falls back to a bundled
+ *                                           asset, or renders without one)
+ *   "https://media.example.com/x"   -> used as-is
+ *   "/videos/x.mp4"                 -> used as-is (served from public/)
+ *   "invite-photo.jpg"              -> an R2 OBJECT KEY, joined to
+ *                                      VITE_MEDIA_BASE
+ *
+ * A bare key with no VITE_MEDIA_BASE set returns "" rather than a relative
+ * path. That matters: a relative URL would resolve against the current page,
+ * so /rsvp would silently request /invite-photo.jpg, get the SPA's index.html
+ * back with a 200, and render a broken image. Returning "" makes the fallback
+ * fire instead, which is a visible, correct outcome rather than a puzzling one.
+ */
+function media(value: string | undefined): string {
+  const v = (value ?? "").trim();
+  if (!v) return "";
+  if (/^(https?:)?\/\//.test(v) || v.startsWith("/")) return v;
+  return mediaBase ? `${mediaBase}/${v.replace(/^\/+/, "")}` : "";
+}
+
 export const siteConfig = {
   bride: "Donella",
   groom: "Gerald",
@@ -12,6 +42,72 @@ export const siteConfig = {
   dateLabel: "Saturday, October 3rd 2026",
   venue: "Kumbali Castle, Lilongwe, Malawi",
   venueShort: "Kumbali Castle, Lilongwe, Malawi",
+
+  /**
+   * The wording on the printed invitation. These values are the source for
+   * the card's alt text (the artwork is a bitmap, so its words are invisible
+   * to screen readers) and for the typographic fallback card. Keep them in
+   * step with `src/assets/invitation.webp`.
+   */
+  invitationAddress: ["Kumbali Castle Garden", "Lilongwe, Malawi"],
+
+  /** As printed: "RECEPTION STARTS @ 15:30". */
+  invitationTime: "15:30",
+
+  /** As printed: "KINDLY RSVP BY 15 SEP 2026". */
+  rsvpBy: "15 September 2026",
+
+  /**
+   * Who a guest should contact when the name search cannot find them.
+   *
+   * Shown at the foot of every variant of the confirmation step — not only the
+   * empty one. Someone looking at two wrong Bandas needs this as much as
+   * someone seeing nothing at all.
+   *
+   * TODO: replace these placeholders with the real names and numbers before
+   * launch. They are the only fallback a guest has if the matcher misses them.
+   */
+  rsvpHelp: {
+    contacts: [
+      { name: "John Mtawali", phone: "+265 000 000 001" },
+      { name: "Jane Nkaonja", phone: "+265 000 000 002" },
+    ],
+  },
+
+  /**
+   * Aspect ratio of the polaroid's photo window, as `"width/height"`.
+   *
+   * The photo is fitted inside this window rather than filling it, so it is
+   * never cropped whatever its own proportions — a mismatch just leaves a
+   * slightly wider white margin on two sides, which on a polaroid reads as
+   * part of the frame. Set this to your photo's actual ratio for even borders.
+   */
+  invitationPhotoAspect: "4/5",
+
+  /**
+   * The printed invitation artwork, so the site shows the identical card.
+   *
+   * Set VITE_INVITATION_ASSET to a full URL or a bare R2 object key.
+   *
+   * Unlike the photo, this one needs nothing in production: the artwork
+   * (src/assets/invitation.webp, 97 KB) is committed and ships with the
+   * bundle, so the card renders from the build with no R2 involved. Failing
+   * both, InvitationCard renders the typographic version from the values
+   * above — no image required at all.
+   */
+  invitationAsset: media(
+    import.meta.env.VITE_INVITATION_ASSET as string | undefined,
+  ),
+
+  /**
+   * Aspect ratio of the printed card, as `"width/height"`. The layout reserves
+   * space using this, so it must match the artwork or the card will letterbox.
+   *
+   * Currently the exact pixel ratio of `src/assets/invitation.webp`
+   * (1190 × 1684 — an A-series portrait, 1:√2). Update this if you replace
+   * the artwork with a different size.
+   */
+  invitationAspect: "1190/1684",
 
   /**
    * Target the Hero countdown ticks down to — October 3rd 2026, 17:00 in
@@ -39,7 +135,7 @@ export const siteConfig = {
    * (e.g. https://media.gerald-and-donella.com). In dev, we fall back to
    * /gallery from the public folder.
    */
-  mediaBase: import.meta.env.VITE_MEDIA_BASE ?? "",
+  mediaBase,
 
   /**
    * Save the Date video source.
@@ -82,6 +178,23 @@ export const siteConfig = {
     (import.meta.env.VITE_STORY_PHOTO_2 as string | undefined) ?? "",
     (import.meta.env.VITE_STORY_PHOTO_3 as string | undefined) ?? "",
   ] as readonly string[],
+
+  /**
+   * The polaroid photo shown beside the invitation card on the RSVP page.
+   *
+   * Set VITE_INVITE_PHOTO to either a full URL or a bare R2 object key
+   * (e.g. "invite-photo.jpg") to be joined to VITE_MEDIA_BASE.
+   *
+   * THIS ONE MATTERS IN PRODUCTION. The local fallback,
+   * src/assets/invite-photo.jpg, is 3.3 MB and gitignored — so it exists on
+   * your machine and NOT in the deployed build. Without VITE_INVITE_PHOTO set
+   * at build time the polaroid renders an empty frame in production while
+   * looking perfectly fine locally, which is the hardest kind of difference to
+   * notice.
+   */
+  invitationPhoto: media(
+    import.meta.env.VITE_INVITE_PHOTO as string | undefined,
+  ),
 
   /**
    * Fabric swatch images (the diamond satin-cloth tiles) — production R2 URLs

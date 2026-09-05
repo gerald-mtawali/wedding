@@ -1,0 +1,71 @@
+name = "wedding-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# ---------------------------------------------------------------------------
+# THIS FILE IS THE LOCAL DEV HARNESS ONLY. It is not deployed.
+#
+# In production the API is served by the Pages project as a Pages Function
+# (web/functions/api/[[path]].ts), which re-exports the very handlers in
+# src/. Its bindings come from web/wrangler.jsonc, NOT from here.
+#
+# What this file is still for:
+#   npm run dev        wrangler dev on :8787, which Vite proxies /api to
+#   npm run db:reset   builds the local D1 that dev and the smoke tests use
+#   npm run smoke      drives that local Worker
+#
+# Do not run `wrangler deploy` from here — it would put a second, unrouted
+# copy of the API on the account.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# D1 — parties, guests, rsvps, registry.
+#
+#   npx wrangler d1 create wedding      # prints the database_id
+#
+# Paste it below, then apply the schema (see docs/d1-deployment.md).
+#
+# The SAME id also has to be in web/wrangler.jsonc, and that is not
+# duplication for its own sake — the two are read by different things:
+#
+#   here                -> `wrangler d1 execute --remote` and the db:remote:*
+#                          scripts, which run from this directory
+#   web/wrangler.jsonc  -> the RUNTIME binding the deployed Pages Function
+#                          resolves as env.DB
+#
+# Setting only this one is the easy mistake: every remote CLI command works
+# perfectly while the deployed site cannot reach the database at all.
+# `database_id` is only used for the REMOTE database; local `wrangler dev`
+# creates its own SQLite file under .wrangler/state and ignores this value.
+# ---------------------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "wedding"
+database_id = "777b4596-842f-4023-8cf1-94730f739ef8"
+
+# R2 binding — gallery photos, the invitation photo, and the Save-the-Date
+# video. Uncomment once the bucket exists:
+#   npx wrangler r2 bucket create wedding-media
+# [[r2_buckets]]
+# binding = "MEDIA"
+# bucket_name = "wedding-media"
+
+[vars]
+ENVIRONMENT = "development"
+
+# Cross-origin callers. EMPTY IN PRODUCTION on purpose — the Worker shares the
+# site's hostname, so nothing is cross-origin. Only set this if you ever move
+# the API to its own subdomain.
+ALLOWED_ORIGINS = ""
+
+# ---------------------------------------------------------------------------
+# NO [env.production] SECTION, DELIBERATELY.
+#
+# Wrangler environments do NOT inherit bindings from the top level. The old
+# `[env.production.vars]` block meant that `wrangler deploy --env production`
+# would have shipped a Worker with NO D1 binding at all — every request
+# answering 503 "The RSVP database isn't configured", in production only, while
+# `wrangler dev` worked perfectly.
+#
+# One environment, one `wrangler deploy`, no way to get that wrong.
+# ---------------------------------------------------------------------------
