@@ -24,5 +24,8 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "../shared"]
+  "include": ["src", "../shared"],
+  // Run by `node --test`, not by either build. It imports node:test and
+  // uses an explicit .ts specifier, neither of which this project knows about.
+  "exclude": ["../shared/**/*.test.ts", "src/**/*.test.ts"]
 }

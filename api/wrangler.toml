@@ -3,15 +3,32 @@ main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
 # ---------------------------------------------------------------------------
-# D1 — parties, guests, rsvps, registry.
+# Routes — the Worker answers on the SAME hostname as the site.
 #
-# `database_id` is only used for the *remote* database. Local `wrangler dev`
-# creates its own SQLite file under .wrangler/state and ignores this value,
-# so you can develop before the remote database exists.
+# A Worker route takes precedence over Pages for the paths it matches, so
+# /api/* reaches this Worker and everything else still reaches the site. That
+# is what makes the whole thing same-origin: the browser sends no Origin
+# header, no preflight happens, and CORS never enters into it.
+#
+# REPLACE the domain below with your zone, then uncomment. Both lines are
+# needed — a pattern ending in /api/* does not match /api itself.
+#
+# The zone must already be on Cloudflare; `zone_name` is the root domain even
+# when the pattern is on www.
+# ---------------------------------------------------------------------------
+# routes = [
+#   { pattern = "gerald-and-donella.com/api/*", zone_name = "gerald-and-donella.com" },
+#   { pattern = "www.gerald-and-donella.com/api/*", zone_name = "gerald-and-donella.com" },
+# ]
+
+# ---------------------------------------------------------------------------
+# D1 — parties, guests, rsvps, registry.
 #
 #   npx wrangler d1 create wedding      # prints the database_id
 #
-# Paste the id below, then apply the schema (see db/schema.sql for commands).
+# Paste it below, then apply the schema (see docs/d1-deployment.md).
+# `database_id` is only used for the REMOTE database; local `wrangler dev`
+# creates its own SQLite file under .wrangler/state and ignores this value.
 # ---------------------------------------------------------------------------
 [[d1_databases]]
 binding = "DB"
@@ -26,7 +43,21 @@ database_id = "REPLACE_ME"
 # bucket_name = "wedding-media"
 
 [vars]
-ENVIRONMENT = "development"
-
-[env.production.vars]
 ENVIRONMENT = "production"
+
+# Cross-origin callers. EMPTY IN PRODUCTION on purpose — the Worker shares the
+# site's hostname, so nothing is cross-origin. Only set this if you ever move
+# the API to its own subdomain.
+ALLOWED_ORIGINS = ""
+
+# ---------------------------------------------------------------------------
+# NO [env.production] SECTION, DELIBERATELY.
+#
+# Wrangler environments do NOT inherit bindings from the top level. The old
+# `[env.production.vars]` block meant that `wrangler deploy --env production`
+# would have shipped a Worker with NO D1 binding at all — every request
+# answering 503 "The RSVP database isn't configured", in production only, while
+# `wrangler dev` worked perfectly.
+#
+# One environment, one `wrangler deploy`, no way to get that wrong.
+# ---------------------------------------------------------------------------

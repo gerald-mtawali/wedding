@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 /**
+ * STALE — invite codes are retired and this emits the old schema.
+ *
+ * The CSV-to-SQL half is still the right idea and is what the real guest list
+ * needs, but it must be reworked to emit db/guests/NNN-*.sql: no `code`
+ * column, a `middle_name` column, and multi-row VALUES instead of UNION ALL
+ * (which D1 rejects — see db/seed.sql). Until then, do not run it.
+ *
  * Turn a guest-list CSV into SQL, assigning each party a unique invite code.
  *
  *   node scripts/generate-codes.mjs ../db/guests.csv > ../db/guest-list.sql

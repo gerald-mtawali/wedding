@@ -28,6 +28,23 @@ export const siteConfig = {
   rsvpBy: "15 September 2026",
 
   /**
+   * Who a guest should contact when the name search cannot find them.
+   *
+   * Shown at the foot of every variant of the confirmation step — not only the
+   * empty one. Someone looking at two wrong Bandas needs this as much as
+   * someone seeing nothing at all.
+   *
+   * TODO: replace these placeholders with the real names and numbers before
+   * launch. They are the only fallback a guest has if the matcher misses them.
+   */
+  rsvpHelp: {
+    contacts: [
+      { name: "Reference Person 1", phone: "+265 000 000 001" },
+      { name: "Reference Person 2", phone: "+265 000 000 002" },
+    ],
+  },
+
+  /**
    * Aspect ratio of the polaroid's photo window, as `"width/height"`.
    *
    * The photo is fitted inside this window rather than filling it, so it is

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import EnvelopeReveal from "../components/rsvp/EnvelopeReveal";
 import RsvpModal from "../components/rsvp/RsvpModal";
 
@@ -11,15 +10,12 @@ import RsvpModal from "../components/rsvp/RsvpModal";
  * button follow. The button only appears once the reveal has finished, so
  * there's exactly one thing to do at any moment.
  *
- * A `?c=CODE` query param (the link printed on the invitation, or in an
- * email) pre-fills the invite code in the form.
+ * Identity is resolved by searching the guest list for the name the guest
+ * types, so there is no code to carry in the URL.
  */
 export default function Rsvp() {
-  const [params] = useSearchParams();
   const [opened, setOpened] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
-
-  const inviteCode = (params.get("c") ?? params.get("code") ?? "").toUpperCase();
 
   // Scroll the reveal into view once the envelope finishes opening — on a
   // phone the card lands below the fold otherwise.
@@ -87,17 +83,14 @@ export default function Rsvp() {
           </button>
 
           <p className="mx-auto mt-6 max-w-xs font-body text-xs leading-relaxed text-ink/50">
-            You&apos;ll need the code printed on your invitation.
+Search for your name and we&apos;ll find you on the guest list.
           </p>
         </div>
       </div>
 
       {/* Mounted only while open, so each visit starts from a clean form. */}
       {formOpen && (
-        <RsvpModal
-          onClose={() => setFormOpen(false)}
-          initialCode={inviteCode}
-        />
+        <RsvpModal onClose={() => setFormOpen(false)} />
       )}
     </section>
   );
