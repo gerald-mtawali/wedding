@@ -139,7 +139,7 @@ export default function StepSearch({
           onChange={(e) => setQuery(e.target.value)}
           autoComplete="name"
           spellCheck={false}
-          placeholder="Donella Banda"
+          placeholder="Jane Doe"
           className={`${inputClass} text-center font-serif text-xl`}
         />
       </Field>
