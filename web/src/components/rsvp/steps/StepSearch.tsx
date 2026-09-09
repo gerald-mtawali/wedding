@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MIN_QUERY_LENGTH } from "@shared/names";
+import { MIN_QUERY_LENGTH, formatGuestName } from "@shared/names";
 import type { GuestMatch, SearchResponse } from "@shared/types";
 import { searchByName } from "../../../lib/rsvpApi";
 import { Field, Notice, StepHeader } from "./Fields";
@@ -21,10 +21,6 @@ import HelpContacts from "./HelpContacts";
 
 const DEBOUNCE_MS = 300;
 
-function fullName(g: GuestMatch): string {
-  return [g.firstName, g.middleName, g.lastName].filter(Boolean).join(" ");
-}
-
 /** A candidate row. The household label is the only disambiguator shown. */
 function GuestOption({
   guest,
@@ -42,7 +38,7 @@ function GuestOption({
       disabled={disabled}
       className={`${selectableClass(false)} flex w-full items-baseline justify-between gap-4 text-left disabled:cursor-not-allowed disabled:opacity-50`}
     >
-      <span className="font-body text-base text-ink">{fullName(guest)}</span>
+      <span className="font-body text-base text-ink">{formatGuestName(guest)}</span>
       <span className="shrink-0 font-serif text-[0.6rem] uppercase tracking-[0.15em] text-brown/70">
         {guest.householdLabel}
         {guest.hasResponded && <span className="ml-2 text-sage-deep">replied</span>}

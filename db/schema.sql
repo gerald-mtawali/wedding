@@ -68,6 +68,17 @@ CREATE TABLE IF NOT EXISTS guests (
   -- 16 hex characters is 64 bits — not a secret, just not enumerable.
   public_id       TEXT    NOT NULL UNIQUE
                   DEFAULT (lower(hex(randomblob(8)))),
+  -- Honorific as the invitation was addressed: "Mr", "Mrs", "Dr", "Rev",
+  -- "Professor", "Madam", "Agogo Aunt". Display only — it is NOT part of
+  -- `name_key` or `search_key`, deliberately: a guest who types "Dr Wilson
+  -- Banda" must match the same row as one who types "Wilson Banda", and a
+  -- title baked into the search keys would break exactly that.
+  --
+  -- NULL when we have no honorific on file, and also NULL when the invitation
+  -- gave us nothing BUT an honorific ("Mr and Mrs Nyirenda") — in that case
+  -- the honorific is the `first_name`, because a name has to be searchable and
+  -- `first_name` is NOT NULL. See db/guests/000-template.sql.
+  title           TEXT,
   first_name      TEXT    NOT NULL,
   -- A middle name or a bare initial. "Alfred", "A", "A." are all valid, and
   -- the Worker's matcher treats a typed initial as a prefix of a stored full
@@ -204,6 +215,7 @@ CREATE VIEW rsvp_summary AS
 SELECT
   g.id                          AS guest_id,
   'guest'                       AS kind,
+  g.title                       AS title,
   g.first_name
     || CASE
          WHEN g.middle_name IS NULL OR trim(g.middle_name) = '' THEN ''
@@ -231,6 +243,7 @@ UNION ALL
 SELECT
   NULL,
   'plus-one',
+  NULL,
   r.plus_one_name,
   p.label,
   g.first_name || ' ' || g.last_name,

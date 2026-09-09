@@ -37,6 +37,7 @@ function noDb(): Response {
 type GuestSearchRow = {
   id: number;
   public_id: string;
+  title: string | null;
   first_name: string;
   middle_name: string | null;
   last_name: string;
@@ -73,7 +74,7 @@ type GuestDetailRow = GuestSearchRow & {
 const MAX_QUERY_LENGTH = 100;
 
 const SEARCH_SQL = `
-  SELECT g.id, g.public_id, g.first_name, g.middle_name, g.last_name,
+  SELECT g.id, g.public_id, g.title, g.first_name, g.middle_name, g.last_name,
          g.allow_plus_one,
          p.label                AS household_label,
          (r.id IS NOT NULL)     AS has_responded
@@ -88,6 +89,7 @@ function toMatch(row: GuestSearchRow): GuestMatch {
     // public_id, so nothing a client holds can be incremented into someone
     // else's record.
     publicId: row.public_id,
+    title: row.title,
     firstName: row.first_name,
     middleName: row.middle_name,
     lastName: row.last_name,
@@ -204,7 +206,7 @@ export async function handleGuestDetail(
   if (!env.DB) return noDb();
 
   const row = await env.DB.prepare(
-    `SELECT g.id, g.public_id, g.first_name, g.middle_name, g.last_name,
+    `SELECT g.id, g.public_id, g.title, g.first_name, g.middle_name, g.last_name,
             g.allow_plus_one,
             p.label            AS household_label,
             (r.id IS NOT NULL) AS has_responded,
@@ -300,7 +302,7 @@ export async function handleRsvp(req: Request, env: Env): Promise<Response> {
   }
 
   const row = await env.DB.prepare(
-    `SELECT g.id, g.public_id, g.first_name, g.middle_name, g.last_name,
+    `SELECT g.id, g.public_id, g.title, g.first_name, g.middle_name, g.last_name,
             g.allow_plus_one,
             p.label AS household_label,
             r.attending, r.dietary, r.dietary_notes,

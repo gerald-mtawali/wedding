@@ -11,7 +11,7 @@ const events: Event[] = [
     description: "Invitations sent — start planning your travel.",
   },
   {
-    date: "September 10, 2026",
+    date: "September 27, 2026",
     title: "RSVP Deadline",
     description: "Please RSVP by this date so we can finalize seating.",
   },

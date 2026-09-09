@@ -85,4 +85,8 @@ db/backups/*.sql
 # removing names from git history is not.
 db/guests/*.sql
 !db/guests/000-template.sql
+# ...and the raw markdown lists the batches are generated FROM. Same names,
+# same allow-list, same reason. `db/guests/*.sql` alone did not cover these.
+db/guests/*.md
 docs/
+db/patches/*.sql

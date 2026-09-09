@@ -1,3 +1,4 @@
+import { formatGuestName, greetingName } from "@shared/names";
 import { DIETARY_OPTIONS, type Dietary, type GuestDetail } from "@shared/types";
 import { Notice, StepHeader } from "./Fields";
 import { primaryButtonClass, quietButtonClass } from "./styles";
@@ -54,9 +55,7 @@ export default function StepReview({
 }) {
   const attending = draft.attending === true;
   const withGuest = bringingGuest(draft, guest.allowPlusOne);
-  const name = [guest.firstName, guest.middleName, guest.lastName]
-    .filter(Boolean)
-    .join(" ");
+  const name = formatGuestName(guest);
 
   return (
     <div className="space-y-7">
@@ -100,7 +99,7 @@ export default function StepReview({
 
       {guest.response && !conflict && (
         <Notice tone="info">
-          This will replace the reply already on record for {guest.firstName}.
+          This will replace the reply already on record for {greetingName(guest)}.
         </Notice>
       )}
 
@@ -109,7 +108,7 @@ export default function StepReview({
           separate, deliberate click rather than something that just happens. */}
       {conflict && (
         <Notice tone="error">
-          A reply was recorded for {guest.firstName} while you were filling this
+          A reply was recorded for {greetingName(guest)} while you were filling this
           in. Sending now will replace it.
         </Notice>
       )}

@@ -379,6 +379,94 @@ const TIERS: {
 ];
 
 // ---------------------------------------------------------------------------
+// Honorifics
+// ---------------------------------------------------------------------------
+
+/** A guest as we PRINT them, rather than as we match them. */
+export type TitledGuest = GuestRecord & { title?: string | null };
+
+/**
+ * The full printed form: "Dr Wilson Banda", "Mr John Jr Tembo".
+ *
+ * One helper rather than the three near-identical `fullName` functions that
+ * used to sit in the RSVP steps, because the day a title is added is the day
+ * two of the three get updated and the third quietly keeps printing the old
+ * shape on one screen.
+ */
+export function formatGuestName(g: TitledGuest): string {
+  return [g.title, g.firstName, g.middleName, g.lastName]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(" ");
+}
+
+/**
+ * What to call this person in a sentence — "Thank you, ___".
+ *
+ * Normally the given name. But some guests have no given name on file: the
+ * invitation said "Mr and Mrs Nyirenda", so `first_name` is 'Mr' and
+ * "Thank you, Mr" is not a sentence. When the given name is nothing but an
+ * honorific, use the honorific and the surname together.
+ */
+export function greetingName(g: TitledGuest): string {
+  const first = normalizeName(g.firstName);
+  const isBareHonorific = HONORIFICS.some((t) => t === first);
+  return isBareHonorific ? `${g.firstName} ${g.lastName}`.trim() : g.firstName;
+}
+
+/**
+ * Titles a guest might type in front of their own name.
+ *
+ * Longest first — the order is load-bearing. "agogo aunt olive mkandawire"
+ * must have both words taken before "agogo" matches alone and leaves "aunt"
+ * to be mistaken for a given name.
+ *
+ * `normalizeName` has already removed the full stop, so "Dr." arrives as "dr"
+ * and no entry here needs one.
+ */
+const HONORIFICS = [
+  "agogo aunt",
+  "professor",
+  "reverend",
+  "doctor",
+  "pastor",
+  "bishop",
+  "madam",
+  "agogo",
+  "uncle",
+  "aunt",
+  "chief",
+  "prof",
+  "miss",
+  "rev",
+  "sir",
+  "hon",
+  "mrs",
+  "mr",
+  "ms",
+  "dr",
+];
+
+/**
+ * Drop one leading honorific from an ALREADY-NORMALISED string.
+ *
+ * Returns the input unchanged when there is no title, and — deliberately —
+ * when the title is all there is. "mr" on its own is below MIN_QUERY_LENGTH
+ * anyway, but more importantly some guests are stored WITH the honorific as
+ * their given name: the invitation said "Mr and Mrs Nyirenda" and gave us no
+ * first name, so `first_name` is 'Mr' because the column is NOT NULL. For
+ * those rows the title is the name, and stripping it would lose them.
+ */
+export function stripHonorific(normalized: string): string {
+  for (const title of HONORIFICS) {
+    if (normalized.startsWith(title + " ")) {
+      return normalized.slice(title.length + 1);
+    }
+  }
+  return normalized;
+}
+
+// ---------------------------------------------------------------------------
 // Suggestions
 // ---------------------------------------------------------------------------
 
@@ -423,17 +511,10 @@ function byName<T extends GuestRecord>(a: Ranked<T>, b: Ranked<T>): number {
  * The same function runs in the Worker and in the browser, so what the form
  * shows as the guest types is exactly what the server will conclude on submit.
  */
-export function searchGuests<T extends GuestRecord>(
-  guests: T[],
-  query: string,
+function resolve<T extends GuestRecord>(
+  keyed: Keyed<T>[],
+  q: ParsedQuery,
 ): SearchOutcome<T> {
-  const q = parseQuery(query);
-  if (q.full.replace(/\s/g, "").length < MIN_QUERY_LENGTH) {
-    return { kind: "too-short" };
-  }
-
-  const keyed = guests.map(keyGuest);
-
   for (const { tier, test } of TIERS) {
     const hits = keyed.filter((k) => test(k, q));
     if (hits.length === 0) continue;
@@ -463,4 +544,59 @@ export function searchGuests<T extends GuestRecord>(
   return suggestions.length
     ? { kind: "suggestions", results: suggestions }
     : { kind: "none" };
+}
+
+/**
+ * Resolve a typed name against the whole guest list.
+ *
+ * Pass every guest; the list is a few hundred people and each comparison is a
+ * handful of string operations, so filtering in SQL first would buy nothing and
+ * cost the ability to reason about the result in one place.
+ *
+ * The same function runs in the Worker and in the browser, so what the form
+ * shows as the guest types is exactly what the server will conclude on submit.
+ *
+ * -------------------------------------------------------------------------
+ * TWO PASSES, AND WHY THE ORDER IS THIS WAY ROUND
+ * -------------------------------------------------------------------------
+ * Almost every invitation on this list is addressed by honorific, so a guest
+ * typing what is on their own card types "Dr Wilson Banda" or "Mrs Ruth
+ * Mtawali". `parseQuery` has no concept of a title: it takes the first token
+ * as the given name, so those become given="dr", middle="wilson",
+ * surname="banda" and match nobody. The whole list would have landed on the
+ * "did you mean…?" screen.
+ *
+ * So: try VERBATIM first, and only if that finds nobody, try again without the
+ * leading title.
+ *
+ * Verbatim has to go first because of the guests whose given name IS an
+ * honorific — "Mr and Mrs Nyirenda" told us a surname and nothing else, so
+ * that row is stored as first_name 'Mr'. Typing "Mr Nyirenda" resolves to
+ * exactly him on the first pass. Stripping first would reduce the query to
+ * "Nyirenda", which is also Mrs Gaulphine Nyirenda's surname, and turn a
+ * confident match into an ambiguity the guest has to resolve by hand.
+ *
+ * The second pass is discarded if it finds nothing, so a stripped query can
+ * only ever improve on the verbatim one, never replace a good answer with a
+ * worse one.
+ */
+export function searchGuests<T extends GuestRecord>(
+  guests: T[],
+  query: string,
+): SearchOutcome<T> {
+  const verbatim = parseQuery(query);
+  if (verbatim.full.replace(/\s/g, "").length < MIN_QUERY_LENGTH) {
+    return { kind: "too-short" };
+  }
+
+  const keyed = guests.map(keyGuest);
+  const first = resolve<T>(keyed as Keyed<T>[], verbatim);
+  if (first.kind === "match" || first.kind === "ambiguous") return first;
+
+  const stripped = stripHonorific(verbatim.full);
+  if (stripped === verbatim.full) return first;
+  if (stripped.replace(/\s/g, "").length < MIN_QUERY_LENGTH) return first;
+
+  const second = resolve<T>(keyed as Keyed<T>[], parseQuery(stripped));
+  return second.kind === "none" ? first : second;
 }

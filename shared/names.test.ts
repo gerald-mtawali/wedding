@@ -20,6 +20,7 @@ import {
   editDistance,
   normalizeName,
   parseQuery,
+  stripHonorific,
   MAX_RESULTS,
   SUGGESTION_THRESHOLD,
   type GuestRecord,
@@ -362,4 +363,96 @@ test("similarity is scaled by length, so short names are judged harder", () => {
   assert.ok(similarity("donella", "donela") > SUGGESTION_THRESHOLD);
   assert.ok(similarity("li", "lu") < SUGGESTION_THRESHOLD);
   assert.equal(similarity("", "banda"), 0);
+});
+
+// ---------------------------------------------------------------------------
+// Honorifics
+//
+// Almost every invitation on the September lists is addressed by title, so a
+// guest typing what is printed on their own card types "Dr Wilson Banda". The
+// parser has no concept of a title — it takes the first token as the given
+// name — so without the second pass in `searchGuests` every one of those
+// queries landed on the "did you mean…?" screen.
+// ---------------------------------------------------------------------------
+
+/**
+ * Mirrors the shapes db/guests/003-sept-09-parents-list.sql produces:
+ * a titled guest, and one whose given name IS an honorific because the
+ * invitation gave us nothing else.
+ */
+const TITLED: GuestRecord[] = [
+  { id: 1, firstName: "Wilson", middleName: null, lastName: "Banda" },
+  { id: 2, firstName: "Olive", middleName: null, lastName: "Mkandawire" },
+  { id: 3, firstName: "Mr", middleName: null, lastName: "Nyirenda" },
+  { id: 4, firstName: "Gaulphine", middleName: null, lastName: "Nyirenda" },
+  { id: 5, firstName: "John", middleName: "Jr", lastName: "Tembo" },
+];
+const findTitled = (q: string): SearchOutcome<GuestRecord> =>
+  searchGuests(TITLED, q);
+
+test("a leading honorific is dropped from an already-normalised string", () => {
+  assert.equal(stripHonorific("dr wilson banda"), "wilson banda");
+  assert.equal(stripHonorific("mrs ruth mtawali"), "ruth mtawali");
+  // Longest first: "agogo aunt" must win over "agogo".
+  assert.equal(stripHonorific("agogo aunt olive mkandawire"), "olive mkandawire");
+  // Nothing to strip.
+  assert.equal(stripHonorific("wilson banda"), "wilson banda");
+  // A title and nothing else is left alone — it may BE somebody's first name.
+  assert.equal(stripHonorific("mr"), "mr");
+});
+
+test("typing your own title still finds you", () => {
+  for (const q of [
+    "Dr Wilson Banda",
+    "Mr Wilson Banda",
+    "Professor Wilson Banda",
+    "Agogo Aunt Olive Mkandawire",
+  ]) {
+    const found = findTitled(q);
+    assert.equal(found.kind, "match", `query: ${q}`);
+  }
+  assert.deepEqual(ids(findTitled("Dr Wilson Banda")), [1]);
+  assert.deepEqual(ids(findTitled("Agogo Aunt Olive Mkandawire")), [2]);
+});
+
+test("a trailing full stop on the title is no obstacle", () => {
+  assert.deepEqual(ids(findTitled("Dr. Wilson Banda")), [1]);
+});
+
+test("a guest whose given name IS an honorific is matched verbatim first", () => {
+  // "Mr and Mrs Nyirenda" gave us a surname and nothing else, so first_name
+  // is 'Mr'. Stripping before matching would reduce this to "Nyirenda" and
+  // turn a confident match into an ambiguity with Gaulphine.
+  const found = findTitled("Mr Nyirenda");
+  assert.equal(found.kind, "match");
+  assert.deepEqual(ids(found), [3]);
+});
+
+test("the bare surname still returns both Nyirendas to choose between", () => {
+  const found = findTitled("Nyirenda");
+  assert.equal(found.kind, "ambiguous");
+  assert.deepEqual(ids(found), [3, 4]);
+});
+
+test("the verbatim pass wins whenever it resolves", () => {
+  // The ordering claim, stated as a test. Stripping "Mr Nyirenda" first would
+  // leave "Nyirenda", which is ambiguous between two people — so a pass order
+  // of stripped-then-verbatim would demote a confident match. It does not.
+  const verbatim = findTitled("Mr Nyirenda");
+  const stripped = findTitled("Nyirenda");
+  assert.equal(verbatim.kind, "match");
+  assert.equal(stripped.kind, "ambiguous");
+});
+
+test("a second pass that finds nobody leaves the verbatim answer alone", () => {
+  // Neither "dr xyzzy" nor "xyzzy" is anyone. The stripped pass must not turn
+  // a considered "none" into anything else.
+  assert.equal(findTitled("Dr Xyzzy").kind, "none");
+});
+
+test("a generational suffix lives in the middle name, so the plain name matches", () => {
+  // last_name = 'Tembo Jr' would give a search_key of "john tembo jr" and
+  // "John Tembo" — what he calls himself — would find nothing.
+  assert.deepEqual(ids(findTitled("John Tembo")), [5]);
+  assert.deepEqual(ids(findTitled("Mr John Tembo")), [5]);
 });

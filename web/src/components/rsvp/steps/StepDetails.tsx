@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatGuestName } from "@shared/names";
 import { DIETARY_OPTIONS, type Dietary, type GuestDetail } from "@shared/types";
 import { Field, Notice, StepHeader } from "./Fields";
 import { inputClass, labelClass, primaryButtonClass, quietButtonClass, selectableClass } from "./styles";
@@ -12,10 +13,6 @@ import { bringingGuest, validate, type RsvpDraft } from "./draft";
  * who was not offered one. Showing a disabled control would be telling a guest
  * about something they cannot have.
  */
-
-function fullName(g: { firstName: string; middleName: string | null; lastName: string }) {
-  return [g.firstName, g.middleName, g.lastName].filter(Boolean).join(" ");
-}
 
 /** The five meal options, as chips rather than a native select. */
 function DietaryPicker({
@@ -80,7 +77,7 @@ export default function StepDetails({
       {/* Who we think this is. Kept visible for the whole step so a guest who
           picked the wrong namesake notices before they fill anything in. */}
       <div className="flex items-baseline justify-between gap-4 border-y border-beige/50 py-3">
-        <span className="font-body text-base text-ink">{fullName(guest)}</span>
+        <span className="font-body text-base text-ink">{formatGuestName(guest)}</span>
         <button type="button" onClick={onBack} className="shrink-0 font-serif text-[0.6rem] uppercase tracking-[0.15em] text-brown/70 underline decoration-beige underline-offset-4 transition-colors hover:text-brown">
           Not you?
         </button>

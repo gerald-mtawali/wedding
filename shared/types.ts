@@ -76,6 +76,16 @@ export type GuestMatch = GuestRecord & {
    */
   publicId: string;
   middleName: string | null;
+  /**
+   * Honorific as the invitation was addressed — "Mrs", "Dr", "Agogo Aunt".
+   * Display only: it is deliberately absent from the matcher's `GuestRecord`,
+   * so a title can never affect who a typed name resolves to.
+   *
+   * NULL is ordinary. It is also what you get for a guest whose given name IS
+   * the honorific, because the invitation gave us no first name — those rows
+   * carry it in `firstName` instead and would otherwise print "Mr Mr".
+   */
+  title: string | null;
   /** `parties.label`, e.g. "The Banda Family". */
   householdLabel: string;
   allowPlusOne: boolean;

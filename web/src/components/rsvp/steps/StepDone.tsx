@@ -1,3 +1,4 @@
+import { greetingName } from "@shared/names";
 import { DIETARY_OPTIONS, type RsvpSubmitSuccess } from "@shared/types";
 import { Notice } from "./Fields";
 import { primaryButtonClass } from "./styles";
@@ -36,7 +37,7 @@ export default function StepDone({
       <p className="font-body text-base leading-relaxed text-ink/75">
         {response.attending ? (
           <>
-            Thank you, {guest.firstName} — you&apos;re on the list
+            Thank you, {greetingName(guest)} — you&apos;re on the list
             {response.plusOneName ? `, along with ${response.plusOneName}` : ""}.
             {meal ? ` We've noted ${meal.toLowerCase()} for the table.` : ""}{" "}
             We&apos;ll be in touch closer to the day with everything you need to
@@ -44,7 +45,7 @@ export default function StepDone({
           </>
         ) : (
           <>
-            Thank you for letting us know, {guest.firstName}. You&apos;ll be
+            Thank you for letting us know, {greetingName(guest)}. You&apos;ll be
             missed — we hope to celebrate with you soon.
           </>
         )}
