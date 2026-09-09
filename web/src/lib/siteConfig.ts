@@ -38,7 +38,7 @@ function media(value: string | undefined): string {
 export const siteConfig = {
   bride: "Donella",
   groom: "Gerald",
-  date: new Date("2026-10-03T15:00:00+02:00"),
+  date: new Date("2026-10-03T16:00:00+02:00"),
   dateLabel: "Saturday, October 3rd 2026",
   venue: "Kumbali Castle, Lilongwe, Malawi",
   venueShort: "Kumbali Castle, Lilongwe, Malawi",
@@ -52,10 +52,10 @@ export const siteConfig = {
   invitationAddress: ["Kumbali Castle Garden", "Lilongwe, Malawi"],
 
   /** As printed: "RECEPTION STARTS @ 15:30". */
-  invitationTime: "15:30",
+  invitationTime: "16:00",
 
-  /** As printed: "KINDLY RSVP BY 15 SEP 2026". */
-  rsvpBy: "15 September 2026",
+  /** As printed: "KINDLY RSVP BY 27 SEP 2026". */
+  rsvpBy: "27 September 2026",
 
   /**
    * Who a guest should contact when the name search cannot find them.
