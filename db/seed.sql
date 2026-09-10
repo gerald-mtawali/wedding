@@ -86,12 +86,23 @@ VALUES
   ((SELECT id FROM guests WHERE name_key = 'peter mwale'),   0, '+265 991 000 003', NULL,          NULL,           NULL,              NULL,     'So sorry to miss it.');
 
 -- ---------------------------------------------------------------------------
--- Registry
+-- Registry — NOT SEEDED HERE. See db/registry/002-items.sql.
 -- ---------------------------------------------------------------------------
-INSERT INTO registry_items
-  (name, description, image_url, item_url, price_cents, currency, target_count, sort_order)
-VALUES
-  ('Honeymoon Fund', 'Help us start our next chapter with a trip to remember.', NULL, NULL, 50000, 'USD', 20, 1),
-  ('Le Creuset Dutch Oven', '5.5 qt enameled cast iron — sage green.', NULL, NULL, 38000, 'USD', 1, 2),
-  ('KitchenAid Stand Mixer', 'Artisan series — for late-night baking.', NULL, NULL, 44999, 'USD', 1, 3),
-  ('Linen Bedding Set', 'Queen, oat color.', NULL, NULL, 22000, 'USD', 1, 4);
+-- This file used to insert four placeholder USD items. It must not, and the
+-- reason is worth writing down because the failure is silent.
+--
+-- `registry_items.name` is now UNIQUE (it is what makes the registry batches
+-- idempotent). One of those placeholders was called 'Honeymoon Fund' — so is a
+-- real row in 002-items.sql. Seeding first meant 002's `INSERT OR IGNORE`
+-- skipped the real Honeymoon Fund and left the placeholder in its place: USD,
+-- target_count 20, wrong description, no category. The item count came out
+-- right, so the PASS/FAIL assertions in 002 said PASS and nothing looked
+-- wrong.
+--
+-- Registry items are public, non-sensitive data, so unlike guests there is no
+-- reason for a dummy version at all. The real list IS the seed:
+--
+--   cd api
+--   npm run db:reset          # this file: parties, guests, rsvps
+--   npx wrangler d1 execute wedding --local --file=../db/registry/001-schema.sql
+--   npx wrangler d1 execute wedding --local --file=../db/registry/002-items.sql

@@ -178,19 +178,91 @@ CREATE INDEX IF NOT EXISTS idx_rsvp_events_guest ON rsvp_events(guest_id);
 -- ---------------------------------------------------------------------------
 -- Registry
 -- ---------------------------------------------------------------------------
+-- `registry_items` is a list of the KINDS of thing we would love — a kettle,
+-- cutlery, curtains — and `registry_item_options` holds the specific products
+-- we have looked at for each one. Nobody has to buy the exact product in a
+-- link, and that separation is the whole point of two tables.
+--
+-- The items themselves are NOT seeded by db/seed.sql. They live in
+-- db/registry/002-items.sql, which is applied to local and remote alike (they
+-- are public, non-sensitive data, so there is no dummy version).
 CREATE TABLE IF NOT EXISTS registry_items (
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  name           TEXT    NOT NULL,
-  description    TEXT,
-  image_url      TEXT,
-  item_url       TEXT,
-  price_cents    INTEGER NOT NULL DEFAULT 0,
-  currency       TEXT    NOT NULL DEFAULT 'USD',
-  target_count   INTEGER NOT NULL DEFAULT 1,
-  pledged_count  INTEGER NOT NULL DEFAULT 0,
-  sort_order     INTEGER NOT NULL DEFAULT 0,
-  created_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  -- The type of thing, as a guest reads it. UNIQUE, and load-bearing: it is
+  -- what makes db/registry/002-items.sql idempotent, and it is how every
+  -- option row in that file finds its parent.
+  name            TEXT    NOT NULL,
+  description     TEXT,
+  -- 'cash' is the honeymoon fund: no target, never "claimed".
+  kind            TEXT    NOT NULL DEFAULT 'item'
+                  CHECK (kind IN ('item', 'cash')),
+  category        TEXT,
+  image_url       TEXT,
+  -- NULL on every row today. Every product link lives in
+  -- registry_item_options so the page has one place to look.
+  item_url        TEXT,
+
+  -- INTERNAL ONLY — for budgeting, never for the browser. The guard is the
+  -- SELECT list in api/src/routes/registry.ts, not a mapping function: a
+  -- column that is never fetched cannot be accidentally serialised later.
+  -- Same discipline as `rsvps.phone`. Minor units, so R7999 is 799900;
+  -- price_max_cents is non-NULL only for a quoted range.
+  price_cents     INTEGER,
+  price_max_cents INTEGER,
+  currency        TEXT    NOT NULL DEFAULT 'ZAR',
+
+  target_count    INTEGER NOT NULL DEFAULT 1 CHECK (target_count >= 1),
+  -- VESTIGIAL. Nothing writes it while pledges are out of the UI, so it is 0
+  -- on every row. Drop it when pledges land and derive the count from
+  -- registry_pledges — a stored counter and a real count drift the first time
+  -- a write half-fails. See docs/registry-plan.md §1.1.
+  pledged_count   INTEGER NOT NULL DEFAULT 0,
+  sort_order      INTEGER NOT NULL DEFAULT 0,
+  -- 0 hides an item without deleting it, and without orphaning its options.
+  is_active       INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+  created_at      TEXT    NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_registry_items_name
+  ON registry_items(name);
+CREATE INDEX IF NOT EXISTS idx_registry_items_sort
+  ON registry_items(is_active, sort_order, id);
+
+-- The products we have actually looked at for each item.
+CREATE TABLE IF NOT EXISTS registry_item_options (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id     INTEGER NOT NULL
+              REFERENCES registry_items(id) ON DELETE CASCADE,
+  -- 'Quality focused' | 'Cost focused' | 'Balanced' | 'Caught our eye'.
+  -- Free text rather than a CHECK: an item may have four of one label and
+  -- none of another, and a CHECK would make the next change to that
+  -- vocabulary a table rebuild.
+  label       TEXT    NOT NULL,
+  retailer    TEXT,
+  product     TEXT,
+  url         TEXT    NOT NULL,
+  price_cents INTEGER,          -- INTERNAL ONLY, as above
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_registry_options_item
+  ON registry_item_options(item_id, sort_order, id);
+
+-- UNIQUE on (item_id, URL) — NOT on (item_id, label), and this is the one
+-- constraint worth reading twice.
+--
+-- Several cells in the source spreadsheet hold TWO links in a single column:
+-- "Cost focused" for Cutlery has both the St James and the Slimline set, and
+-- Dinner Plates has two links in all three columns. A unique index on
+-- (item_id, label) would silently swallow the second link of every pair under
+-- INSERT OR IGNORE, and the loss would be invisible — the row would look fine,
+-- just shorter.
+--
+-- The same URL under two DIFFERENT items is allowed, and is real: the Kenwood
+-- Multipro is listed under both Blender and Food Processor because it is both.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_registry_options_url
+  ON registry_item_options(item_id, url);
 
 CREATE TABLE IF NOT EXISTS registry_pledges (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,

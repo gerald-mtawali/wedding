@@ -250,17 +250,59 @@ export type RsvpSubmitResult = RsvpSubmitSuccess | RsvpSubmitError;
 // Registry
 // ---------------------------------------------------------------------------
 
+/**
+ * One product we have looked at for an item.
+ *
+ * `label` is 'Quality focused' | 'Cost focused' | 'Balanced' | 'Caught our
+ * eye', but it is typed as `string` on purpose: it is free text in the
+ * database because an item may have four of one label and none of another, and
+ * a union here would be a promise the schema does not keep.
+ */
+export type RegistryOption = {
+  id: number;
+  label: string;
+  /** 'Kitchenique', 'Hertex Haus', 'Woolworths' — where the link goes. */
+  retailer: string | null;
+  /** The product as the retailer names it. */
+  product: string | null;
+  url: string;
+};
+
+/**
+ * A registry item as the CLIENT is allowed to see it.
+ *
+ * An item is a KIND of thing — "Kettle", "Cutlery", "Curtains" — and `options`
+ * are the specific products we have looked at for it. Nobody has to buy the
+ * exact product in a link.
+ *
+ * WHAT IS DELIBERATELY ABSENT: `price_cents`, `price_max_cents`, `currency`.
+ * They are columns on `registry_items` and they stay there. The registry shows
+ * no amounts, and the guard is the SELECT list in api/src/routes/registry.ts
+ * rather than this mapping, because a column that is never fetched cannot be
+ * accidentally serialised later. Same reasoning as `phone` on `RsvpRecord`.
+ *
+ * `pledged_count` is absent too: nothing writes it while pledges are out of
+ * the UI, so a page that shows no claim state has no use for it.
+ */
 export type RegistryItem = {
   id: number;
   name: string;
   description: string | null;
-  image_url: string | null;
-  item_url: string | null;
-  price_cents: number;
-  currency: string;
-  target_count: number;
-  pledged_count: number;
+  /** 'cash' is the honeymoon fund — it renders differently and has no links. */
+  kind: "item" | "cash";
+  /** 'Appliances' | 'Cookware' | 'Kitchen' | 'Dining' | 'Bedroom' | 'Home' | 'Honeymoon' */
+  category: string | null;
+  /** R2 object key or full URL; resolve through `media()` in siteConfig. */
+  imageUrl: string | null;
+  /** A single default link. NULL on every row today — see `options`. */
+  itemUrl: string | null;
+  targetCount: number;
+  /** Empty for the honeymoon fund, and for an item we are still browsing. */
+  options: RegistryOption[];
 };
+
+/** `GET /api/registry` */
+export type RegistryResponse = { items: RegistryItem[] };
 
 export type PledgePayload = {
   itemId: number;

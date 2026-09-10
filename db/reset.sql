@@ -14,6 +14,7 @@
 DROP VIEW  IF EXISTS rsvp_headcount;
 DROP VIEW  IF EXISTS rsvp_summary;
 
+DROP TABLE IF EXISTS registry_item_options;
 DROP TABLE IF EXISTS registry_pledges;
 DROP TABLE IF EXISTS registry_items;
 DROP TABLE IF EXISTS rsvp_events;

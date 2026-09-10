@@ -69,8 +69,31 @@ export const siteConfig = {
    */
   rsvpHelp: {
     contacts: [
-      { name: "John Mtawali", phone: "+265 000 000 001" },
-      { name: "Jane Nkaonja", phone: "+265 000 000 002" },
+      { name: "John Testman", phone: "+265 000 000 001" },
+      { name: "Jane Testwoman", phone: "+265 000 000 002" },
+    ],
+  },
+
+  /**
+   * Registry settings.
+   *
+   * `contacts` are the people a guest speaks to about giving money rather than
+   * a gift. Kept SEPARATE from `rsvpHelp.contacts` on purpose, even if the same
+   * two names end up in both: those two answer "the search cannot find me",
+   * these two handle contributions. Sharing one list would mean that changing
+   * who helps with the guest list silently changes who handles money.
+   *
+   * The registry page reads the names straight from here and renders each as a
+   * `tel:` link, so there is no copy to edit when a number changes.
+   *
+   * TODO: replace these placeholders with the real names and numbers before
+   * launch. Until then the registry page tells guests to contact people who do
+   * not exist on numbers that do not work.
+   */
+  registry: {
+    contacts: [
+      { name: "John Testman", phone: "+265 000 000 001" },
+      { name: "Jane Testwoman", phone: "+265 000 000 002" },
     ],
   },
 
