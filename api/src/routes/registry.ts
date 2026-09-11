@@ -27,6 +27,8 @@ type ItemRow = {
   image_url: string | null;
   item_url: string | null;
   target_count: number;
+  goal_cents: number | null;
+  goal_currency: string | null;
 };
 
 type OptionRow = {
@@ -41,13 +43,20 @@ type OptionRow = {
 /**
  * Every column named explicitly, and NO `SELECT *` in this file ever.
  *
- * WHAT IS DELIBERATELY ABSENT: `price_cents`, `price_max_cents`, `currency`.
- * They exist on the table for our own budgeting and they must never reach a
- * browser. The guard lives here, in the SELECT list, rather than in the
- * mapping function below — a column that is never fetched cannot be
+ * WHAT IS DELIBERATELY ABSENT: `price_cents`, `price_max_cents`, `currency`
+ * as such. They exist on the table for our own budgeting and they must never
+ * reach a browser. The guard lives here, in the SELECT list, rather than in
+ * the mapping function below — a column that is never fetched cannot be
  * accidentally serialised later by someone extending the mapper.
  *
  * This is the same discipline as `rsvps.phone` in routes/rsvp.ts.
+ *
+ * THE ONE EXCEPTION is the honeymoon fund's goal, and note HOW it is made
+ * safe. Rather than selecting `price_cents` and filtering in TypeScript, the
+ * CASE expression below returns NULL for anything that is not a cash item. The
+ * query itself is therefore incapable of emitting a price for the fridge, no
+ * matter what anyone later does to `toPayload`. A `WHERE` clause would not
+ * give that guarantee, and neither would an `if` in the mapper.
  *
  * `pledged_count` is also gone from here. It is vestigial (nothing writes it
  * while pledges are out of the UI) and a page that shows no claim state has no
@@ -55,7 +64,9 @@ type OptionRow = {
  */
 const ITEMS_SQL = `
   SELECT id, name, description, kind, category, image_url, item_url,
-         target_count
+         target_count,
+         CASE WHEN kind = 'cash' THEN price_cents END AS goal_cents,
+         CASE WHEN kind = 'cash' THEN currency    END AS goal_currency
     FROM registry_items
    WHERE is_active = 1
    ORDER BY sort_order ASC, id ASC`;
@@ -114,6 +125,8 @@ export async function handleRegistry(env: Env): Promise<Response> {
     itemUrl: row.item_url,
     targetCount: row.target_count,
     options: byItem.get(row.id) ?? [],
+    goalCents: row.goal_cents,
+    goalCurrency: row.goal_currency,
   }));
 
   return json({ items: payload });

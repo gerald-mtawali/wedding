@@ -299,6 +299,24 @@ export type RegistryItem = {
   targetCount: number;
   /** Empty for the honeymoon fund, and for an item we are still browsing. */
   options: RegistryOption[];
+
+  /**
+   * The honeymoon fund's target, in minor units. NULL on every other item.
+   *
+   * THE ONE EXCEPTION to "no amounts reach the browser", and a deliberate one:
+   * a fund without a figure gives a guest no sense of scale, which is the
+   * opposite problem to a gift list that reads like a price list. A goal is
+   * also a different kind of number from a price — it says what we are aiming
+   * at together, not what any one person should give.
+   *
+   * The guarantee that it cannot leak for anything else is enforced in SQL
+   * rather than here: the SELECT in api/src/routes/registry.ts reads
+   * `CASE WHEN kind = 'cash' THEN price_cents END`, so the query is incapable
+   * of returning a price for an ordinary item however this mapping changes.
+   */
+  goalCents: number | null;
+  /** ISO currency for `goalCents` (USD for the fund). NULL when no goal. */
+  goalCurrency: string | null;
 };
 
 /** `GET /api/registry` */

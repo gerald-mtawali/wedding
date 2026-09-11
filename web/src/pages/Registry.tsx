@@ -45,6 +45,24 @@ export default function Registry() {
   // siteConfig so the names and numbers live in one place; see the TODO there.
   const contacts = siteConfig.registry.contacts;
 
+  // The fund's goal, formatted. Intl throws a RangeError on a currency code it
+  // does not recognise, and a typo in one database row should not blank the
+  // whole page — so this falls back to the plain number rather than throwing.
+  let goal: string | null = null;
+  if (fund?.goalCents != null && fund.goalCurrency) {
+    const amount = fund.goalCents / 100;
+    try {
+      goal = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: fund.goalCurrency,
+        // A round target. Cents on a goal would read as an invoice.
+        maximumFractionDigits: 0,
+      }).format(amount);
+    } catch {
+      goal = `${fund.goalCurrency} ${amount.toLocaleString("en-US")}`;
+    }
+  }
+
   // Category order comes from the API's own ordering (sort_order), taken from
   // first appearance, so adding a category in SQL needs no change here.
   const groups: { category: string; items: RegistryItem[] }[] = [];
@@ -90,9 +108,21 @@ export default function Registry() {
             like we have linked it, but please buy whatever version suits you, or
             nothing at all.
           </p>
+          {/* The money paragraph, and the order of its three sentences is the
+              whole point. It opens with OUR problem (we will be in South
+              Africa, the shops are South African), not with the guest's
+              budget, so nobody reads it as being told they cannot afford a
+              gift. Then it offers the easier route. Then it closes on
+              bringing something in person, so the last thing in a guest's
+              head is that a physical gift is genuinely wanted. */}
           <p className="mx-auto mt-4 max-w-xl font-body text-sm leading-relaxed text-ink/50">
-            We also know an exact item is not always easy to arrange, so a
-            contribution towards the wedding is just as welcome. Speak to{" "}
+            We will be making our home in South Africa, and nearly every shop
+            linked here is South African. We know that is not practical for
+            everyone.
+          </p>
+          <p className="mx-auto mt-4 max-w-xl font-body text-sm leading-relaxed text-ink/50">
+            So if a contribution is easier than carrying a parcel, it is
+            genuinely welcome, and{" "}
             {contacts.map((contact, i) => (
               <span key={contact.phone}>
                 {i > 0 && (i === contacts.length - 1 ? " or " : ", ")}
@@ -106,7 +136,8 @@ export default function Registry() {
                 </a>
               </span>
             ))}{" "}
-            and they will tell you how.
+            will tell you how. And if you would rather bring something with you
+            on the day, we would love that just as much.
           </p>
         </header>
 
@@ -146,12 +177,28 @@ export default function Registry() {
                 rather than inline, so they are edited in one place — and so
                 they are not scattered through the markup when the pledge flow
                 lands. See docs/registry-plan.md Phase 5. */}
+
+            {/* The only number a guest sees anywhere on this page, so it is
+                allowed to carry some weight. It is a GOAL, not a price and not
+                a suggested share, and the line beneath says so — a bare figure
+                on its own invites the reading "this is what is expected of
+                me". */}
+            {goal && (
+              <p className="mt-8 font-serif text-3xl tracking-[0.06em] text-ink md:text-4xl">
+                {goal}
+              </p>
+            )}
             {/* Deliberately does NOT repeat the contact names from the intro
                 above. Two "speak to X or Y" lines a screen apart reads as the
                 page not trusting the guest to have read the first one. */}
-            <p className="mt-6 font-serif text-[0.65rem] uppercase tracking-[0.25em] text-brown/70">
-              Any amount is welcome
+            <p className="mt-2.5 font-serif text-[0.6rem] uppercase tracking-[0.28em] text-brown/60">
+              {goal ? "Our goal" : "Any amount is welcome"}
             </p>
+            {goal && (
+              <p className="mt-5 font-body text-xs italic text-ink/45">
+                Any amount is welcome, however small.
+              </p>
+            )}
           </div>
         )}
 

@@ -69,8 +69,8 @@ export const siteConfig = {
    */
   rsvpHelp: {
     contacts: [
-      { name: "John Testman", phone: "+265 000 000 001" },
-      { name: "Jane Testwoman", phone: "+265 000 000 002" },
+      { name: "Kettie Mtawali", phone: "+265 995978534" },
+      { name: "Charles Gomani", phone: "+265 99 547 9669" },
     ],
   },
 
@@ -92,8 +92,8 @@ export const siteConfig = {
    */
   registry: {
     contacts: [
-      { name: "John Testman", phone: "+265 000 000 001" },
-      { name: "Jane Testwoman", phone: "+265 000 000 002" },
+      { name: "Kettie Mtawali", phone: "+265 995978534" },
+      { name: "Charles Gomani", phone: "+265 99 547 9669" },
     ],
   },
 

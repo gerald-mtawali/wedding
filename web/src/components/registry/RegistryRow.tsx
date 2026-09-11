@@ -60,9 +60,10 @@ export default function RegistryRow({ item }: { item: RegistryItem }) {
             </button>
           ) : (
             // An item with no links still belongs on the page: a guest who
-            // wants to give towels should know towels are wanted.
-            <span className="font-body text-xs italic text-ink/40">
-              still browsing
+            // wants to give towels should know towels are wanted. Rather than
+            // admitting we have not looked yet, say the useful thing.
+            <span className="font-body text-xs italic text-ink/45">
+              any contribution welcome
             </span>
           )}
         </div>
@@ -81,14 +82,14 @@ export default function RegistryRow({ item }: { item: RegistryItem }) {
                 key={option.id}
                 className="flex flex-col gap-1.5 border-t border-beige/50 py-3.5 first:border-t-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
               >
-                <div className="min-w-0">
-                  <p className="font-serif text-[0.6rem] uppercase tracking-[0.22em] text-sage-deep">
-                    {option.label}
-                  </p>
-                  <p className="mt-1 font-body text-sm leading-snug text-ink/85">
-                    {option.product ?? option.url}
-                  </p>
-                </div>
+                {/* `option.label` is deliberately NOT rendered. Every option
+                    now reads 'Caught our eye', so a chip repeating it on every
+                    line would be pure noise. The column is still populated in
+                    the database, so reinstating tiers is a data change rather
+                    than a code change. */}
+                <p className="min-w-0 font-body text-sm leading-snug text-ink/85">
+                  {option.product ?? option.url}
+                </p>
 
                 <a
                   href={option.url}
