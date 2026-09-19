@@ -21,7 +21,22 @@ import HelpContacts from "./HelpContacts";
 
 const DEBOUNCE_MS = 300;
 
-/** A candidate row. The household label is the only disambiguator shown. */
+/**
+ * A candidate row. The household label is the only disambiguator shown.
+ *
+ * The row is a WRAPPING flex, not a fixed two-column one. On a narrow phone a
+ * long household label ("Mr Ruzayo and Mrs Stella Nyirongo") cannot fit beside
+ * the name, and the label used to be `shrink-0`, so it pushed itself out past
+ * the edge of the modal instead of giving way.
+ *
+ * `flex-wrap` drops the label onto its own line the moment the pair no longer
+ * fits, and `min-w-0` on both spans is what lets them shrink inside a flex
+ * item at all — without it the default `min-width: auto` keeps the intrinsic
+ * width and the overflow comes back. `break-words` is the last resort for a
+ * single token longer than the row, which `flex-wrap` alone cannot break.
+ *
+ * `gap-y-1` is the gap the wrapped line needs; `gap-x-4` is the old `gap-4`.
+ */
 function GuestOption({
   guest,
   onSelect,
@@ -36,10 +51,12 @@ function GuestOption({
       type="button"
       onClick={() => onSelect(guest)}
       disabled={disabled}
-      className={`${selectableClass(false)} flex w-full items-baseline justify-between gap-4 text-left disabled:cursor-not-allowed disabled:opacity-50`}
+      className={`${selectableClass(false)} flex w-full flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left disabled:cursor-not-allowed disabled:opacity-50`}
     >
-      <span className="font-body text-base text-ink">{formatGuestName(guest)}</span>
-      <span className="shrink-0 font-serif text-[0.6rem] uppercase tracking-[0.15em] text-brown/70">
+      <span className="min-w-0 break-words font-body text-base text-ink">
+        {formatGuestName(guest)}
+      </span>
+      <span className="min-w-0 break-words font-serif text-[0.6rem] uppercase tracking-[0.15em] text-brown/70">
         {guest.householdLabel}
         {guest.hasResponded && <span className="ml-2 text-sage-deep">replied</span>}
       </span>
@@ -170,7 +187,7 @@ export default function StepSearch({
           <>
             <Notice tone="info">
               More than one guest goes by that name. Please choose which one is
-              you — the household on the right should tell them apart.
+              you — the household shown with each name should tell them apart.
             </Notice>
             <div className="flex flex-col gap-2">
               {result.guests.map((g) => (

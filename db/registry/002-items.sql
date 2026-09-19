@@ -59,7 +59,7 @@ VALUES
   -- Honeymoon ---------------------------------------------------------
   ('Honeymoon Fund',
    'A contribution towards our first trip away as a married couple.',
-   'cash', 'Honeymoon', 200000, NULL, 'USD', 10),
+   'cash', 'Honeymoon', 400000, NULL, 'USD', 10),
   -- Appliances --------------------------------------------------------
   ('Fridge',
    'A double-door fridge with a bottom-mount freezer.',
