@@ -121,7 +121,7 @@ export default function Registry() {
             everyone.
           </p>
           <p className="mx-auto mt-4 max-w-xl font-body text-sm leading-relaxed text-ink/50">
-            So if a contribution is easier than carrying a parcel, it is
+            So if a monetary contribution is easier than purchasing a gift, it is
             genuinely welcome, and{" "}
             {contacts.map((contact, i) => (
               <span key={contact.phone}>
